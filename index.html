@@ -346,13 +346,26 @@ tr:last-child td{border-bottom:none}
 <script>
 'use strict';
 
-// ============ DB ============
-let _db = null;
-function db(){return _db?Promise.resolve(_db):new Promise((ok,no)=>{try{const r=indexedDB.open('SRA2',1);r.onupgradeneeded=e=>{if(!e.target.result.objectStoreNames.contains('d'))e.target.result.createObjectStore('d',{keyPath:'id'})};r.onsuccess=e=>{_db=e.target.result;ok(_db)};r.onerror=e=>no(e.target.error)}catch(e){no(e)}})}
-function dbGet(){return db().then(d=>new Promise((ok,no)=>{try{d.transaction('d','readonly').objectStore('d').getAll().onsuccess=e=>ok(e.target.result||[]);d.onerror=()=>no()}catch(e){no(e)}}))}
-function dbPut(o){return db().then(d=>new Promise((ok,no)=>{try{d.transaction('d','readwrite').objectStore('d').put(o).onsuccess=()=>ok()}catch(e){no(e)}}))}
-function dbDel(id){return db().then(d=>new Promise((ok,no)=>{try{d.transaction('d','readwrite').objectStore('d').delete(id).onsuccess=()=>ok()}catch(e){no(e)}}))}
-function dbClear(){return db().then(d=>new Promise((ok,no)=>{try{d.transaction('d','readwrite').objectStore('d').clear().onsuccess=()=>ok()}catch(e){no(e)}}))}
+// ============ API ============
+const API = '/api/data';
+
+async function loadFromApi() {
+  try {
+    const res = await fetch(API);
+    const data = await res.json();
+    return data;
+  } catch { return { personas: [], prestamos: [] }; }
+}
+
+async function syncToApi() {
+  try {
+    await fetch(API, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ personas, prestamos })
+    });
+  } catch(e) { toast('Error al guardar: ' + (e.message||e)); }
+}
 
 // ============ STATE ============
 let personas = [];
@@ -562,12 +575,12 @@ async function savePersona() {
       const idx = personas.findIndex(p => p.id === editPersonaId);
       if (idx === -1) return;
       personas[idx] = { ...personas[idx], nombre, telefono, nota };
-      await dbPut(personas[idx]);
+      await syncToApi();
       toast('Persona actualizada');
     } else {
       const p = { id: uid(), nombre, telefono, nota };
       personas.push(p);
-      await dbPut(p);
+      await syncToApi();
       closeModal('m-persona');
       render();
       openPrestamoForm(p.id);
@@ -580,10 +593,9 @@ async function savePersona() {
 
 async function eliminarPersona(id) {
   if (!confirm('¿Eliminar esta persona y todos sus préstamos?')) return;
-  for (const pr of prestamos.filter(pr => pr.personaId === id)) await dbDel(pr.id);
   prestamos = prestamos.filter(pr => pr.personaId !== id);
   personas = personas.filter(p => p.id !== id);
-  await dbDel(id);
+  await syncToApi();
   closeModal('m-detalle');
   detPersonaId = null;
   toast('Persona eliminada');
@@ -593,7 +605,7 @@ async function eliminarPersona(id) {
 async function limpiarTodo() {
   if (!confirm('¿Borrar TODOS los datos? Esto eliminará personas, préstamos y abonos. No se puede deshacer.')) return;
   if (!confirm('¿Estás seguro? Se perderá toda la información.')) return;
-  await dbClear();
+  await syncToApi();
   personas = [];
   prestamos = [];
   detPersonaId = null;
@@ -648,12 +660,12 @@ async function savePrestamo() {
       const idx = prestamos.findIndex(pr => pr.id === editPrestamoId);
       if (idx === -1) return;
       prestamos[idx] = { ...prestamos[idx], monto, tasa, tasaPeriodo, fecha, plazoMeses: plazo || null, sistema, nota };
-      await dbPut(prestamos[idx]);
+      await syncToApi();
       toast('Préstamo actualizado');
     } else {
       const pr = { id: uid(), personaId: detPersonaId, monto, tasa, tasaPeriodo, fecha, plazoMeses: plazo || null, sistema, abonos: [] };
       prestamos.push(pr);
-      await dbPut(pr);
+      await syncToApi();
       toast('Préstamo registrado');
     }
     closeModal('m-prestamo');
@@ -664,7 +676,7 @@ async function savePrestamo() {
 async function eliminarPrestamo(id) {
   if (!confirm('¿Eliminar este préstamo y sus abonos?')) return;
   prestamos = prestamos.filter(pr => pr.id !== id);
-  await dbDel(id);
+  await syncToApi();
   renderDetalle();
   render();
   toast('Préstamo eliminado');
@@ -710,7 +722,7 @@ async function saveAbono() {
       return;
     }
     pr.abonos.push({ id: uid(), fecha, monto });
-    await dbPut(pr);
+    await syncToApi();
     closeModal('m-abono');
     toast('Abono de ' + fmt(monto) + ' registrado');
     render();
@@ -722,7 +734,7 @@ async function eliminarAbono(prestamoId, abonoId) {
   const pr = prestamos.find(x => x.id === prestamoId);
   if (!pr) return;
   pr.abonos = pr.abonos.filter(a => a.id !== abonoId);
-  await dbPut(pr);
+  await syncToApi();
   renderDetalle();
   render();
 }
@@ -951,10 +963,9 @@ function render() {
 // ============ INIT ============
 (async () => {
   try {
-    const items = await dbGet() || [];
-    personas = items.filter(i => i.nombre !== undefined);
-    prestamos = items.filter(i => i.monto !== undefined);
-    prestamos.forEach(pr => { if (!pr.abonos) pr.abonos = []; if (!pr.sistema) pr.sistema = 'frances'; });
+    const data = await loadFromApi();
+    personas = data.personas || [];
+    prestamos = (data.prestamos || []).map(pr => { if (!pr.abonos) pr.abonos = []; if (!pr.sistema) pr.sistema = 'frances'; return pr; });
   } catch(e) { toast('Error al cargar datos'); }
   $('fpr-fecha').value = today();
   $('fab-fecha').value = today();
