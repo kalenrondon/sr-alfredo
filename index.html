@@ -101,18 +101,9 @@ td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
 tr:last-child td{border-bottom:none}
 
 /* ===== MODAL ===== */
-.mo{
-  display:none;position:fixed;inset:0;background:rgba(34,65,46,0.45);z-index:200;
-  align-items:flex-end;justify-content:center;padding:16px;
-}
+.mo{display:none;position:fixed;inset:0;background:rgba(34,65,46,0.45);z-index:200;align-items:flex-end;justify-content:center;padding:16px}
 .mo.show{display:flex}
-.mo-c{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-  width:100%;max-width:500px;overflow:hidden;
-  animation:up 0.25s ease;
-  display:flex;flex-direction:column;max-height:96vh;
-}
-
+.mo-c{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);width:100%;max-width:500px;overflow:hidden;animation:up 0.25s ease;display:flex;flex-direction:column;max-height:96vh}
 .mo-c-hd{padding:24px 20px 0}
 .mo-c-scroll{padding:0 20px 12px;overflow-y:auto;flex:1;min-height:0}
 @keyframes up{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -151,10 +142,7 @@ tr:last-child td{border-bottom:none}
 .pr .rm{font-size:11px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace}
 
 /* ===== SIMULATION ===== */
-.sim{
-  background:var(--paper);border-top:2px solid var(--gold);padding:12px 16px;
-  flex-shrink:0;
-}
+.sim{background:var(--paper);border-top:2px solid var(--gold);padding:12px 16px;flex-shrink:0}
 .sim-h{font-size:10px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:8px}
 .sim-g{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .sim-i{text-align:center}
@@ -346,15 +334,18 @@ tr:last-child td{border-bottom:none}
 <script>
 'use strict';
 
-// ============ API ============
+// =============================================================================
+// API — comunicación con el backend (Vercel KV)
+// =============================================================================
 const API = '/api/data';
 
 async function loadFromApi() {
   try {
     const res = await fetch(API);
-    const data = await res.json();
-    return data;
-  } catch { return { personas: [], prestamos: [] }; }
+    return await res.json();
+  } catch {
+    return { personas: [], prestamos: [] };
+  }
 }
 
 async function syncToApi() {
@@ -364,10 +355,12 @@ async function syncToApi() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ personas, prestamos })
     });
-  } catch(e) { toast('Error al guardar: ' + (e.message||e)); }
+  } catch(e) { toast('Error al guardar: ' + (e.message || e)); }
 }
 
-// ============ STATE ============
+// =============================================================================
+// STATE — estado global de la aplicación
+// =============================================================================
 let personas = [];
 let prestamos = [];
 let editPersonaId = null;
@@ -375,58 +368,170 @@ let editPrestamoId = null;
 let detPersonaId = null;
 let abonoPrestamoId = null;
 
-const $=id=>document.getElementById(id);
-const esc=s=>{if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML};
-const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
-const int=v=>Math.max(0,parseInt(v)||0);
-const num=v=>{const n=parseFloat(String(v).replace(/[^0-9.]/g,''));return isNaN(n)||n<0?0:n};
+// =============================================================================
+// UTILITIES — funciones auxiliares generales
+// =============================================================================
+const $ = id => document.getElementById(id);
 
-// ============ INTEREST CALC ============
+/** Escapa HTML para evitar XSS */
+const esc = s => {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+};
+
+/** Retorna la fecha de hoy en formato YYYY-MM-DD */
+const today = () => {
+  const d = new Date();
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mes}-${dia}`;
+};
+
+/** Genera un ID único */
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+
+/** Parsea un entero positivo */
+const int = v => Math.max(0, parseInt(v) || 0);
+
+/** Parsea un número desde un string (tolera puntos y caracteres no numéricos) */
+const num = v => {
+  const n = parseFloat(String(v).replace(/[^0-9.]/g, ''));
+  return isNaN(n) || n < 0 ? 0 : n;
+};
+
+/** Pluraliza palabras en español */
+const pluralize = (n, singular, plural) => n === 1 ? singular : (plural || singular + 'es');
+
+// =============================================================================
+// FORMATTING — formato de fechas, monedas, input de dinero
+// =============================================================================
+
+/** Formatea una fecha ISO a formato legible: "11 de ago de 2026" */
+function formatFecha(f) {
+  if (!f) return '—';
+  return new Date(f + 'T00:00:00').toLocaleDateString('es-CO', {
+    day: 'numeric', month: 'short', year: 'numeric'
+  });
+}
+
+/** Formatea un número como moneda: "$1,500,000" */
+function fmt(n) {
+  if (typeof n !== 'number') n = 0;
+  return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+/**
+ * Input de dinero con separadores de miles.
+ * Mantiene la posición del cursor durante el formateo.
+ */
+function autoPuntos(el) {
+  const pos = el.selectionStart;
+  let digBefore = 0;
+  for (let i = 0; i < pos && i < el.value.length; i++) {
+    if (el.value[i] >= '0' && el.value[i] <= '9') digBefore++;
+  }
+  const soloDigitos = el.value.replace(/\D/g, '');
+  const formateado = soloDigitos.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  let newPos = 0, digitCount = 0;
+  while (digitCount < digBefore && newPos < formateado.length) {
+    if (formateado[newPos] >= '0' && formateado[newPos] <= '9') digitCount++;
+    newPos++;
+  }
+  el.value = formateado;
+  el.setSelectionRange(Math.min(newPos, formateado.length), Math.min(newPos, formateado.length));
+}
+
+// =============================================================================
+// FINANCIAL LOGIC — cálculos de préstamos (separada de la UI)
+// =============================================================================
+
+/** Constante: días promedio por mes (usado en sistema Libre) */
 const MS_MES = 1000 * 60 * 60 * 24 * 30.4375;
 
+/** Retorna la tasa mensual (decimal porcentual) a partir del préstamo */
+function getTasaMensual(pr) {
+  return pr.tasaPeriodo === 'anual' ? pr.tasa / 12 : pr.tasa;
+}
+
+/**
+ * Calcula la cuota fija del sistema francés.
+ * Fórmula: P * (i * (1+i)^n) / ((1+i)^n - 1)
+ * donde P = capital, i = tasa mensual (decimal), n = número de cuotas
+ */
+function calcFrancesCuota(monto, tasaMensual, plazo) {
+  const r = tasaMensual / 100; // convertir a decimal
+  if (r === 0) return plazo > 0 ? monto / plazo : 0;
+  if (!plazo || plazo < 1) return 0;
+  const factor = Math.pow(1 + r, plazo);
+  return monto * r * factor / (factor - 1);
+}
+
+/**
+ * Calcula meses calendario completos entre dos fechas.
+ * Ej: 31 mar → 30 abr = 1 mes (no 0, porque abril tiene 30 días).
+ */
+function getCalendarMonths(d1, d2) {
+  let m = (d2.getFullYear() - d1.getFullYear()) * 12 + d2.getMonth() - d1.getMonth();
+  const ultimoDiaD2 = new Date(d2.getFullYear(), d2.getMonth() + 1, 0).getDate();
+  const d1Day = Math.min(d1.getDate(), ultimoDiaD2);
+  if (d2.getDate() < d1Day) m--;
+  return Math.max(0, m);
+}
+
+/**
+ * Calcula el estado actual de un préstamo.
+ * Para sistema francés: los intereses se cuentan por meses calendario completos.
+ * Para sistema libre: los intereses son proporcionales a los días transcurridos.
+ * Retorna { capitalPendiente, interesAcumulado, saldoTotal, tasaM, estado, fechaPago, fechaVenc }
+ */
 function calcPrestamo(pr) {
-  const tasaM = pr.tasaPeriodo === 'anual' ? pr.tasa / 12 : pr.tasa;
+  const tasaM = getTasaMensual(pr);
   const sistema = pr.sistema || 'frances';
   let balance = pr.monto;
   let interes = 0;
   let lastDate = new Date(pr.fecha + 'T00:00:00');
-  const abonos = [...(pr.abonos || [])].sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+  const abonos = [...(pr.abonos || [])].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
   let fechaPago = null;
 
   for (const ab of abonos) {
     const d = new Date(ab.fecha + 'T00:00:00');
-    let meses;
-    if (sistema === 'frances') {
-      meses = getCalendarMonths(lastDate, d);
-    } else {
-      meses = Math.max(0, (d - lastDate) / MS_MES);
-    }
+    // Calcular meses transcurridos según el sistema
+    const meses = sistema === 'frances'
+      ? getCalendarMonths(lastDate, d)
+      : Math.max(0, (d - lastDate) / MS_MES);
+
+    // Acumular interés sobre el saldo pendiente del período
     interes += balance * (tasaM / 100) * meses;
-    let monto = ab.monto;
-    if (monto <= interes + 0.005) {
-      interes -= monto;
+
+    // Aplicar el pago: primero cubre interés, luego reduce capital
+    const pago = ab.monto;
+    if (pago <= interes + 0.005) {
+      interes -= pago;
     } else {
-      monto -= interes;
+      let resto = pago - interes;
       interes = 0;
-      balance = Math.max(0, balance - monto);
+      balance = Math.max(0, balance - resto);
     }
+
     lastDate = d;
+    // Marcar la fecha en que el saldo llegó a cero
     if (fechaPago === null && balance <= 1 && interes <= 1) {
       fechaPago = ab.fecha;
     }
   }
 
+  // Interés acumulado desde el último abono hasta hoy
   const hoy = new Date();
-  let mesesHoy;
-  if (sistema === 'frances') {
-    mesesHoy = getCalendarMonths(lastDate, hoy);
-  } else {
-    mesesHoy = Math.max(0, (hoy - lastDate) / MS_MES);
-  }
+  const mesesHoy = sistema === 'frances'
+    ? getCalendarMonths(lastDate, hoy)
+    : Math.max(0, (hoy - lastDate) / MS_MES);
+
   interes += balance * (tasaM / 100) * mesesHoy;
   const saldoTotal = balance + interes;
 
+  // Determinar estado y fecha de vencimiento
   let estado = 'al_dia';
   let fechaVenc = null;
   if (pr.plazoMeses) {
@@ -440,118 +545,157 @@ function calcPrestamo(pr) {
   return { capitalPendiente: balance, interesAcumulado: interes, saldoTotal, tasaM, estado, fechaPago, fechaVenc };
 }
 
-function getCalendarMonths(d1, d2) {
-  let m = (d2.getFullYear() - d1.getFullYear()) * 12 + d2.getMonth() - d1.getMonth();
-  const d1Day = Math.min(d1.getDate(), new Date(d2.getFullYear(), d2.getMonth() + 1, 0).getDate());
-  if (d2.getDate() < d1Day) m--;
-  return Math.max(0, m);
-}
-
-function actualizarSimulacion() {
-  const raw = ($('fpr-monto').value || '').replace(/\./g, '');
-  const monto = num(raw);
-  const tasa = num($('fpr-tasa').value);
-  const tasaPeriodo = $('fpr-periodo').value;
-  const plazo = int($('fpr-plazo').value);
-  const sistema = $('fpr-sistema').value;
-  const sim = $('sim-box');
-  if (!monto || monto < 1) { sim.style.display = 'none'; return; }
-  sim.style.display = 'block';
-  const tasaM = tasaPeriodo === 'anual' ? tasa / 12 : tasa;
-  const interesMes = monto * (tasaM / 100);
-  if (plazo > 0) {
-    let cuota, totalPagar, intereses;
-    if (sistema === 'frances') {
-      cuota = calcFrancesCuota(monto, tasaM, plazo);
-      totalPagar = cuota * plazo;
-      intereses = totalPagar - monto;
-      $('sim-nota').textContent = `Sistema francés — cuota fija por ${plazo} mes${plazo === 1 ? '' : 'es'}`;
-    } else {
-      cuota = monto / plazo + interesMes;
-      totalPagar = monto + interesMes * plazo;
-      intereses = interesMes * plazo;
-      $('sim-nota').textContent = `Sistema libre — cuota estimada para ${plazo} mes${plazo === 1 ? '' : 'es'}`;
-    }
-    $('sim-cuota').textContent = fmt(cuota);
-    $('sim-total').textContent = fmt(totalPagar);
-    $('sim-intereses').textContent = fmt(intereses);
-  } else {
-    $('sim-cuota').textContent = fmt(interesMes);
-    $('sim-total').textContent = '—';
-    $('sim-intereses').textContent = fmt(interesMes) + '/mes';
-    $('sim-nota').textContent = 'Sin plazo definido — solo pagas interés mensual';
-  }
-}
-
-function calcFrancesCuota(monto, tasaMensual, plazo) {
-  const r = tasaMensual / 100;
-  if (r === 0) return plazo > 0 ? monto / plazo : 0;
-  if (!plazo || plazo < 1) return 0;
-  return monto * r * Math.pow(1 + r, plazo) / (Math.pow(1 + r, plazo) - 1);
-}
-
-function formatFecha(f) {
-  if (!f) return '—';
-  return new Date(f + 'T00:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' });
-}
-
-function fmt(n) {
-  if (typeof n !== 'number') n = 0;
-  return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-}
-
-// Money input: strip non-digits, add dots every 3 digits
-function autoPuntos(el) {
-  let pos = el.selectionStart;
-  let digBefore = 0;
-  for (let i = 0; i < pos && i < el.value.length; i++) if (el.value[i] >= '0' && el.value[i] <= '9') digBefore++;
-  let d = el.value.replace(/\D/g, '');
-  let f = d.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  let np = 0, c = 0;
-  while (c < digBefore && np < f.length) { if (f[np] >= '0' && f[np] <= '9') c++; np++; }
-  el.value = f;
-  el.setSelectionRange(Math.min(np, f.length), Math.min(np, f.length));
-}
-
-// ============ COMPORTAMIENTO ============
-function calcComportamiento(prestamosConCalc) {
+/**
+ * Evalúa el comportamiento de pago de una persona basado en sus préstamos.
+ * Retorna { label, cls } o null si no hay datos suficientes.
+ */
+function calcComportamiento(prs) {
   let evaluados = 0, tarde = 0;
-  prestamosConCalc.forEach(pr => {
-    if (!pr.plazoMeses) return;
-    if (pr.calc.estado === 'pagado') {
+  for (const pr of prs) {
+    if (!pr.plazoMeses) continue;
+    const c = pr.calc;
+    if (c.estado === 'pagado') {
       evaluados++;
-      if (pr.calc.fechaPago && pr.calc.fechaVenc && pr.calc.fechaPago > pr.calc.fechaVenc) tarde++;
-    } else if (pr.calc.estado === 'atrasado') { evaluados++; tarde++; }
-    else if (pr.calc.estado === 'al_dia') { evaluados++; }
-  });
+      if (c.fechaPago && c.fechaVenc && c.fechaPago > c.fechaVenc) tarde++;
+    } else if (c.estado === 'atrasado') { evaluados++; tarde++; }
+    else if (c.estado === 'al_dia') { evaluados++; }
+  }
   if (!evaluados) return null;
-  const r = tarde / evaluados;
-  if (r === 0) return { label: 'Paga al día', cls: 'v' };
-  if (r <= 0.5) return { label: 'A veces se atrasa', cls: 'g' };
+  const ratio = tarde / evaluados;
+  if (ratio === 0) return { label: 'Paga al día', cls: 'v' };
+  if (ratio <= 0.5) return { label: 'A veces se atrasa', cls: 'g' };
   return { label: 'Suele atrasarse', cls: 'r' };
 }
 
+/** Retorna etiqueta y clase CSS para días de aviso de vencimiento */
 function avisoLabel(dias) {
-  if (dias < 0) return { text: `Vencido hace ${Math.abs(dias)} ${Math.abs(dias)===1?'día':'días'}`, cls: 'r' };
+  if (dias < 0) return { text: `Vencido hace ${Math.abs(dias)} ${pluralize(Math.abs(dias), 'día')}`, cls: 'r' };
   if (dias === 0) return { text: 'Vence hoy', cls: 'r' };
-  return { text: `Vence en ${dias} ${dias===1?'día':'días'}`, cls: 'g' };
+  return { text: `Vence en ${dias} ${pluralize(dias, 'día')}`, cls: 'g' };
 }
 
-// ============ TOAST ============
-function toast(m) { const e = $('toast'); e.textContent = m; e.classList.add('show'); clearTimeout(e._t); e._t = setTimeout(() => e.classList.remove('show'), 2500); }
+// =============================================================================
+// UI HELPERS — funciones reutilizables para construir la interfaz
+// =============================================================================
 
-// ============ MODALS ============
+/** Mapea estado a etiqueta y clase CSS del stamp */
+function estadoInfo(estado) {
+  const map = {
+    pagado:   { label: 'PAGADO',   stampCls: 'stamp-g' },
+    atrasado: { label: 'ATRASADO', stampCls: 'stamp-r' },
+    al_dia:   { label: 'AL DÍA',   stampCls: 'stamp-v' }
+  };
+  return map[estado] || { label: '', stampCls: '' };
+}
+
+/** Genera el HTML de una tarjeta de préstamo para la vista de detalle */
+function renderLoanCard(pr, calc) {
+  const tasaM = getTasaMensual(pr);
+  const sistema = pr.sistema || 'frances';
+  const stInfo = estadoInfo(calc.estado);
+  const stLbl = stInfo.label;
+  const stCls = stInfo.stampCls;
+
+  // Calcular cuota proyectada (solo informativa)
+  let cuotaMensual = 0, totalPagar = 0, interesTotal = 0;
+  if (pr.plazoMeses) {
+    if (sistema === 'frances') {
+      cuotaMensual = calcFrancesCuota(pr.monto, tasaM, pr.plazoMeses);
+      totalPagar = cuotaMensual * pr.plazoMeses;
+    } else {
+      const interesMes = pr.monto * (tasaM / 100);
+      cuotaMensual = pr.monto / pr.plazoMeses + interesMes;
+      totalPagar = pr.monto + interesMes * pr.plazoMeses;
+    }
+    interesTotal = totalPagar - pr.monto;
+  }
+
+  const fechaCabecera = calc.estado === 'pagado'
+    ? `<div style="font-size:10px;color:var(--ink-soft)">✅ Pagado ${formatFecha(calc.fechaPago)}</div>`
+    : '<div></div>';
+
+  // Grid de información (con plazo vs sin plazo)
+  const gridComun = () => `
+    <div class="di"><div class="t">Capital</div><div class="v">${fmt(pr.monto)}</div></div>
+    <div class="di"><div class="t">Tasa</div><div class="v">${pr.tasa}% ${pr.tasaPeriodo === 'anual' ? 'anual' : 'mensual'}</div></div>
+    <div class="di"><div class="t">Saldo hoy</div><div class="v" style="color:var(--gold)">${fmt(calc.saldoTotal)}</div></div>
+    <div class="di"><div class="t">Sistema</div><div class="v" style="font-size:12px;color:var(--ink-soft)">${sistema === 'frances' ? 'Francés' : 'Libre'}</div></div>`;
+
+  const gridConPlazo = () => `
+    ${gridComun()}
+    <div class="di"><div class="t">Cuota mensual</div><div class="v">${fmt(cuotaMensual)}</div></div>
+    <div class="di"><div class="t">Total a pagar</div><div class="v" style="color:var(--red)">${fmt(totalPagar)}</div></div>
+    <div class="di"><div class="t">Intereses totales</div><div class="v" style="color:var(--ink-soft)">${fmt(interesTotal)}</div></div>`;
+
+  // Nota
+  const notaHtml = pr.nota
+    ? `<p style="font-size:12px;color:var(--ink-soft);font-style:italic;margin-bottom:6px">"${esc(pr.nota)}"</p>`
+    : '';
+
+  // Lista de abonos (colapsable)
+  const abonosCount = (pr.abonos || []).length;
+  const abonosHtml = abonosCount ? `
+    <div style="margin-bottom:6px">
+      <div class="ab-h" onclick="toggleAbonos(this)">
+        <span class="ab-arr">▶</span>
+        <span style="font-size:10px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.2px">Abonos (${abonosCount})</span>
+      </div>
+      <div class="hide">
+        ${pr.abonos.slice().sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).map(a =>
+          `<div class="pr"><span class="dt">${formatFecha(a.fecha)}</span><span class="mo">${fmt(a.monto)}</span><button class="btn-ico" onclick="eliminarAbono('${pr.id}','${a.id}')" style="width:18px;height:18px;font-size:10px">✕</button></div>`
+        ).join('')}
+      </div>
+    </div>` : '';
+
+  return `<div style="background:var(--paper-2);border-radius:4px;padding:10px 12px;margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      ${fechaCabecera}
+      <span class="stamp ${stCls}" style="transform:none;font-size:9px">${stLbl}</span>
+    </div>
+    <div class="dg" style="margin-bottom:6px">
+      ${pr.plazoMeses ? gridConPlazo() : gridComun()}
+    </div>
+    ${notaHtml}
+    ${abonosHtml}
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+      <button class="btn btn-s btn-sm" onclick="closeModal('m-detalle');openPrestamoForm('${pr.personaId}','${pr.id}')">✏️</button>
+      <button class="btn btn-s btn-sm btn-d" onclick="eliminarPrestamo('${pr.id}')">🗑</button>
+    </div>
+  </div>`;
+}
+
+// =============================================================================
+// TOAST — notificaciones temporales
+// =============================================================================
+function toast(m) {
+  const el = $('toast');
+  el.textContent = m;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// =============================================================================
+// MODALS — apertura y cierre
+// =============================================================================
 function openModal(id) { $(id).classList.add('show'); }
 function closeModal(id) { $(id).classList.remove('show'); }
-document.querySelectorAll('.mo').forEach(el => { el.addEventListener('click', e => { if (e.target === el) el.classList.remove('show'); }); });
 
-// ============ PERSONAS ============
+// Cerrar modal al hacer clic fuera del contenido
+document.querySelectorAll('.mo').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('show'); });
+});
+
+// =============================================================================
+// PERSONAS — CRUD
+// =============================================================================
 function openPersonaForm(id) {
   editPersonaId = id || null;
   $('mp-title').textContent = editPersonaId ? 'Editar persona' : 'Nueva persona';
   $('fp-nombre-h').textContent = '';
   if (editPersonaId) {
-    const p = personas.find(x => x.id === id); if (!p) return;
+    const p = personas.find(x => x.id === id);
+    if (!p) return;
     $('fp-nombre').value = p.nombre;
     $('fp-tel').value = p.telefono || '';
     $('fp-nota').value = p.nota || '';
@@ -588,7 +732,7 @@ async function savePersona() {
     }
     closeModal('m-persona');
     render();
-  } catch(e) { toast('Error: ' + (e.message||e)); }
+  } catch(e) { toast('Error: ' + (e.message || e)); }
 }
 
 async function eliminarPersona(id) {
@@ -605,10 +749,10 @@ async function eliminarPersona(id) {
 async function limpiarTodo() {
   if (!confirm('¿Borrar TODOS los datos? Esto eliminará personas, préstamos y abonos. No se puede deshacer.')) return;
   if (!confirm('¿Estás seguro? Se perderá toda la información.')) return;
-  await syncToApi();
   personas = [];
   prestamos = [];
   detPersonaId = null;
+  await syncToApi();
   closeModal('m-detalle');
   closeModal('m-prestamo');
   closeModal('m-abono');
@@ -616,12 +760,16 @@ async function limpiarTodo() {
   render();
 }
 
-// ============ PRESTAMOS ============
+// =============================================================================
+// PRESTAMOS — CRUD
+// =============================================================================
 function openPrestamoForm(personaId, prestamoId) {
   editPrestamoId = prestamoId || null;
+  detPersonaId = personaId;
   $('mpr-title').textContent = editPrestamoId ? 'Editar préstamo' : 'Nuevo préstamo';
   if (editPrestamoId) {
-    const pr = prestamos.find(x => x.id === prestamoId); if (!pr) return;
+    const pr = prestamos.find(x => x.id === prestamoId);
+    if (!pr) return;
     $('fpr-monto').value = Math.round(pr.monto).toString();
     if ($('fpr-monto').value) autoPuntos($('fpr-monto'));
     $('fpr-tasa').value = pr.tasa;
@@ -640,7 +788,6 @@ function openPrestamoForm(personaId, prestamoId) {
     $('fpr-nota').value = '';
   }
   $('sim-box').style.display = 'none';
-  detPersonaId = personaId;
   openModal('m-prestamo');
   setTimeout(() => { $('fpr-monto').focus(); actualizarSimulacion(); }, 150);
 }
@@ -656,21 +803,20 @@ async function savePrestamo() {
     const sistema = $('fpr-sistema').value;
     const nota = $('fpr-nota').value.trim();
     if (!monto || monto < 1 || !fecha) { toast('Completa los campos requeridos'); return; }
+
     if (editPrestamoId) {
       const idx = prestamos.findIndex(pr => pr.id === editPrestamoId);
       if (idx === -1) return;
       prestamos[idx] = { ...prestamos[idx], monto, tasa, tasaPeriodo, fecha, plazoMeses: plazo || null, sistema, nota };
-      await syncToApi();
       toast('Préstamo actualizado');
     } else {
-      const pr = { id: uid(), personaId: detPersonaId, monto, tasa, tasaPeriodo, fecha, plazoMeses: plazo || null, sistema, abonos: [] };
-      prestamos.push(pr);
-      await syncToApi();
+      prestamos.push({ id: uid(), personaId: detPersonaId, monto, tasa, tasaPeriodo, fecha, plazoMeses: plazo || null, sistema, abonos: [] });
       toast('Préstamo registrado');
     }
+    await syncToApi();
     closeModal('m-prestamo');
     render();
-  } catch(e) { toast('Error: ' + (e.message||e)); }
+  } catch(e) { toast('Error: ' + (e.message || e)); }
 }
 
 async function eliminarPrestamo(id) {
@@ -682,7 +828,9 @@ async function eliminarPrestamo(id) {
   toast('Préstamo eliminado');
 }
 
-// ============ ABONOS ============
+// =============================================================================
+// ABONOS — registro de pagos
+// =============================================================================
 function openAbonoForm(prestamoId) {
   abonoPrestamoId = prestamoId;
   const pr = prestamos.find(x => x.id === prestamoId);
@@ -690,7 +838,8 @@ function openAbonoForm(prestamoId) {
   const calc = calcPrestamo(pr);
   const per = personas.find(p => p.id === pr.personaId);
   $('abono-info').innerHTML = `<b>${esc(per ? per.nombre : '—')}</b> — Debe: ${fmt(calc.saldoTotal)} (capital: ${fmt(calc.capitalPendiente)} + interés: ${fmt(calc.interesAcumulado)})`;
-  const tasaM = pr.tasaPeriodo === 'anual' ? pr.tasa / 12 : pr.tasa;
+
+  const tasaM = getTasaMensual(pr);
   const sistema = pr.sistema || 'frances';
   let sugerido;
   if (sistema === 'frances' && pr.plazoMeses) {
@@ -698,6 +847,7 @@ function openAbonoForm(prestamoId) {
   } else {
     sugerido = Math.round(calc.capitalPendiente * (calc.tasaM / 100));
   }
+
   $('fab-fecha').value = today();
   $('fab-monto').value = sugerido > 0 ? sugerido.toString() : '';
   if ($('fab-monto').value) autoPuntos($('fab-monto'));
@@ -712,21 +862,24 @@ async function saveAbono() {
     const monto = num(raw);
     const fecha = $('fab-fecha').value;
     if (!monto || monto <= 0 || !fecha) { toast('Completa los campos'); return; }
+
     const pr = prestamos.find(x => x.id === abonoPrestamoId);
     if (!pr) return;
-    if (fecha < pr.fecha) { toast('La fecha del abono no puede ser anterior a la del préstamo (' + pr.fecha + ')'); return; }
+    if (fecha < pr.fecha) { toast(`La fecha del abono no puede ser anterior a la del préstamo (${pr.fecha})`); return; }
+
     const calc = calcPrestamo(pr);
     if (monto > calc.saldoTotal + 1) {
       $('abono-error').textContent = `Ese monto (${fmt(monto)}) es mayor a lo que debe (${fmt(calc.saldoTotal)}). Revisa el número.`;
       $('abono-error').style.display = 'block';
       return;
     }
+
     pr.abonos.push({ id: uid(), fecha, monto });
     await syncToApi();
     closeModal('m-abono');
-    toast('Abono de ' + fmt(monto) + ' registrado');
+    toast(`Abono de ${fmt(monto)} registrado`);
     render();
-  } catch(e) { toast('Error: ' + (e.message||e)); }
+  } catch(e) { toast('Error: ' + (e.message || e)); }
 }
 
 async function eliminarAbono(prestamoId, abonoId) {
@@ -739,7 +892,16 @@ async function eliminarAbono(prestamoId, abonoId) {
   render();
 }
 
-// ============ DETALLE PERSONA ============
+// Función auxiliar para toggle de abonos en las tarjetas
+function toggleAbonos(headerEl) {
+  const list = headerEl.nextElementSibling;
+  list.classList.toggle('hide');
+  headerEl.querySelector('.ab-arr').classList.toggle('open');
+}
+
+// =============================================================================
+// DETALLE PERSONA — vista ampliada de una persona
+// =============================================================================
 function openDetalle(personaId) {
   detPersonaId = personaId;
   renderDetalle();
@@ -749,17 +911,25 @@ function openDetalle(personaId) {
 function renderDetalle() {
   const p = personas.find(x => x.id === detPersonaId);
   if (!p) return;
-  const prs = prestamos.filter(pr => pr.personaId === detPersonaId).map(pr => ({ ...pr, calc: calcPrestamo(pr) }));
+
+  // Obtener préstamos con cálculos
+  const prs = prestamos
+    .filter(pr => pr.personaId === detPersonaId)
+    .map(pr => ({ ...pr, calc: calcPrestamo(pr) }));
+
+  // Comportamiento
   const comp = calcComportamiento(prs);
   $('det-nombre').textContent = esc(p.nombre);
   $('det-comport').innerHTML = comp ? `<span class="pill pill-${comp.cls}">${comp.label}</span>` : '';
+
+  // Metadatos
   const meta = [];
-  if (p.telefono) meta.push('📞 ' + esc(p.telefono));
-  if (p.nota) meta.push('💬 "' + esc(p.nota) + '"');
+  if (p.telefono) meta.push(`📞 ${esc(p.telefono)}`);
+  if (p.nota) meta.push(`💬 "${esc(p.nota)}"`);
   if (meta.length) { $('det-meta').style.display = 'block'; $('det-meta').textContent = meta.join(' · '); }
   else $('det-meta').style.display = 'none';
 
-  // Resumen del préstamo activo en la cabecera
+  // Resumen del préstamo activo
   const activeLoan = prs.find(pr => pr.calc.estado !== 'pagado');
   const res = $('det-resumen');
   if (activeLoan && activeLoan.plazoMeses) {
@@ -770,16 +940,18 @@ function renderDetalle() {
     d.setMonth(d.getMonth() + numPagadas);
     const proxFecha = d.toISOString().slice(0, 10);
     res.style.display = 'block';
-    res.innerHTML = '<div style="font-size:12px;line-height:1.6">' +
-      '<div>📅 Prestado ' + formatFecha(activeLoan.fecha) + ' — ' + fmt(activeLoan.monto) + ' · plazo ' + activeLoan.plazoMeses + ' mes' + (activeLoan.plazoMeses === 1 ? '' : 'es') + (s.fechaVenc ? ' · termina ' + formatFecha(s.fechaVenc) : '') + '</div>' +
-      (proxNum <= activeLoan.plazoMeses ? '<div style="font-weight:600;margin-top:2px">📆 Próxima cuota: <span class="font-m">' + formatFecha(proxFecha) + '</span> · #' + proxNum + ' de ' + activeLoan.plazoMeses + '</div>' : '') +
-    '</div>';
+    res.innerHTML = `<div style="font-size:12px;line-height:1.6">
+      <div>📅 Prestado ${formatFecha(activeLoan.fecha)} — ${fmt(activeLoan.monto)} · plazo ${activeLoan.plazoMeses} ${pluralize(activeLoan.plazoMeses, 'mes')}${s.fechaVenc ? ' · termina ' + formatFecha(s.fechaVenc) : ''}</div>
+      ${proxNum <= activeLoan.plazoMeses ? `<div style="font-weight:600;margin-top:2px">📆 Próxima cuota: <span class="font-m">${formatFecha(proxFecha)}</span> · #${proxNum} de ${activeLoan.plazoMeses}</div>` : ''}
+    </div>`;
   } else {
     res.style.display = 'none';
   }
 
+  // Botones de la cabecera
   $('det-edit-btn').onclick = () => { closeModal('m-detalle'); openPersonaForm(p.id); };
   $('det-del-btn').onclick = () => eliminarPersona(p.id);
+
   if (activeLoan) {
     $('det-add-loan').textContent = '+ Registrar abono';
     $('det-add-loan').onclick = () => { closeModal('m-detalle'); openAbonoForm(activeLoan.id); };
@@ -788,84 +960,40 @@ function renderDetalle() {
     $('det-add-loan').onclick = () => { closeModal('m-detalle'); openPrestamoForm(p.id); };
   }
 
-  const cont = $('det-prestamos'); const emp = $('det-empty');
+  // Lista de préstamos
+  const cont = $('det-prestamos');
+  const emp = $('det-empty');
   if (!prs.length) { cont.innerHTML = ''; emp.style.display = 'block'; return; }
   emp.style.display = 'none';
-  cont.innerHTML = prs.map(pr => {
-    const s = pr.calc;
-    const stL = s.estado === 'pagado' ? 'Pagado' : s.estado === 'atrasado' ? 'Atrasado' : 'Al día';
-    const stC = s.estado === 'pagado' ? 'stamp-g' : s.estado === 'atrasado' ? 'stamp-r' : 'stamp-v';
-    const tasaM = pr.tasaPeriodo === 'anual' ? pr.tasa / 12 : pr.tasa;
-    const interesMes = pr.monto * (tasaM / 100);
-    const sistema = pr.sistema || 'frances';
-    let cuotaMensual = 0, totalPagar = 0, interesTotal = 0;
-    if (pr.plazoMeses) {
-      if (sistema === 'frances') {
-        cuotaMensual = calcFrancesCuota(pr.monto, tasaM, pr.plazoMeses);
-        totalPagar = cuotaMensual * pr.plazoMeses;
-      } else {
-        cuotaMensual = pr.monto / pr.plazoMeses + interesMes;
-        totalPagar = pr.monto + interesMes * pr.plazoMeses;
-      }
-      interesTotal = totalPagar - pr.monto;
-    }
-    return '<div style="background:var(--paper-2);border-radius:4px;padding:10px 12px;margin-bottom:10px">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
-        (s.estado === 'pagado' ? '<div style="font-size:10px;color:var(--ink-soft)">✅ Pagado ' + formatFecha(s.fechaPago) + '</div>' : '<div></div>') +
-        '<span class="stamp ' + stC + '" style="transform:none;font-size:9px">' + stL + '</span>' +
-      '</div>' +
-      (pr.plazoMeses ?
-        '<div class="dg" style="margin-bottom:6px">' +
-          '<div class="di"><div class="t">Capital</div><div class="v">' + fmt(pr.monto) + '</div></div>' +
-          '<div class="di"><div class="t">Tasa</div><div class="v">' + pr.tasa + '% ' + (pr.tasaPeriodo === 'anual' ? 'anual' : 'mensual') + '</div></div>' +
-          '<div class="di"><div class="t">Saldo hoy</div><div class="v" style="color:var(--gold)">' + fmt(s.saldoTotal) + '</div></div>' +
-          '<div class="di"><div class="t">Cuota mensual</div><div class="v">' + fmt(cuotaMensual) + '</div></div>' +
-          '<div class="di"><div class="t">Total a pagar</div><div class="v" style="color:var(--red)">' + fmt(totalPagar) + '</div></div>' +
-          '<div class="di"><div class="t">Intereses totales</div><div class="v" style="color:var(--ink-soft)">' + fmt(interesTotal) + '</div></div>' +
-          '<div class="di"><div class="t">Sistema</div><div class="v" style="font-size:12px;color:var(--ink-soft)">' + (sistema === 'frances' ? 'Francés' : 'Libre') + '</div></div>' +
-        '</div>' :
-        '<div class="dg" style="margin-bottom:6px">' +
-          '<div class="di"><div class="t">Capital</div><div class="v">' + fmt(pr.monto) + '</div></div>' +
-          '<div class="di"><div class="t">Tasa</div><div class="v">' + pr.tasa + '% ' + (pr.tasaPeriodo === 'anual' ? 'anual' : 'mensual') + '</div></div>' +
-          '<div class="di"><div class="t">Saldo hoy</div><div class="v" style="color:var(--gold)">' + fmt(s.saldoTotal) + '</div></div>' +
-          '<div class="di"><div class="t">Sistema</div><div class="v" style="font-size:12px;color:var(--ink-soft)">' + (sistema === 'frances' ? 'Francés' : 'Libre') + '</div></div>' +
-        '</div>'
-      ) +
-      (pr.nota ? '<p style="font-size:12px;color:var(--ink-soft);font-style:italic;margin-bottom:6px">"' + esc(pr.nota) + '"</p>' : '') +
-      (pr.abonos && pr.abonos.length ? '<div style="margin-bottom:6px">' +
-        '<div class="ab-h" onclick="var n=this.nextElementSibling;n.classList.toggle(\'hide\');this.querySelector(\'.ab-arr\').classList.toggle(\'open\')">' +
-          '<span class="ab-arr">▶</span><span style="font-size:10px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.2px">Abonos (' + pr.abonos.length + ')</span>' +
-        '</div>' +
-        '<div class="hide">' +
-          pr.abonos.slice().sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).map(a =>
-            '<div class="pr"><span class="dt">' + formatFecha(a.fecha) + '</span><span class="mo">' + fmt(a.monto) + '</span><button class="btn-ico" onclick="eliminarAbono(\'' + pr.id + '\',\'' + a.id + '\')" style="width:18px;height:18px;font-size:10px">✕</button></div>'
-          ).join('') +
-        '</div></div>' : '') +
-      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">' +
-        '<button class="btn btn-s btn-sm" onclick="closeModal(\'m-detalle\');openPrestamoForm(\'' + pr.personaId + '\',\'' + pr.id + '\')">✏️</button>' +
-        '<button class="btn btn-s btn-sm btn-d" onclick="eliminarPrestamo(\'' + pr.id + '\')">🗑</button>' +
-      '</div>' +
-    '</div>';
-  }).join('');
+  cont.innerHTML = prs.map(pr => renderLoanCard(pr, pr.calc)).join('');
 }
 
-// ============ HISTORIAL GLOBAL ============
+// =============================================================================
+// HISTORIAL GLOBAL — lista de todos los abonos registrados
+// =============================================================================
 function openHistorial() {
   const allP = [];
-  prestamos.forEach(pr => {
+  for (const pr of prestamos) {
     const per = personas.find(p => p.id === pr.personaId);
-    (pr.abonos || []).forEach(a => { allP.push({ id: a.id, fecha: a.fecha, monto: a.monto, persona: per ? per.nombre : '—' }); });
-  });
-  allP.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
-  const list = $('hist-list'); const emp = $('hist-empty');
-  if (!allP.length) { list.innerHTML = ''; emp.style.display = 'block'; } else {
+    for (const a of (pr.abonos || [])) {
+      allP.push({ id: a.id, fecha: a.fecha, monto: a.monto, persona: per ? per.nombre : '—' });
+    }
+  }
+  allP.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+  const list = $('hist-list');
+  const emp = $('hist-empty');
+  if (!allP.length) {
+    list.innerHTML = '';
+    emp.style.display = 'block';
+  } else {
     emp.style.display = 'none';
     list.innerHTML = allP.map(h =>
-      '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px">' +
-        '<span class="dt" style="min-width:90px">' + formatFecha(h.fecha) + '</span>' +
-        '<span style="font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(h.persona) + '</span>' +
-        '<span style="font-weight:700;color:var(--green)">' + fmt(h.monto) + '</span>' +
-      '</div>'
+      `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px">
+        <span class="dt" style="min-width:90px">${formatFecha(h.fecha)}</span>
+        <span style="font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(h.persona)}</span>
+        <span style="font-weight:700;color:var(--green)">${fmt(h.monto)}</span>
+      </div>`
     ).join('');
   }
   openModal('m-historial');
@@ -875,98 +1003,177 @@ function openConfig() {
   openModal('m-config');
 }
 
-// ============ RENDER ============
+// =============================================================================
+// SIMULACIÓN — vista previa del préstamo antes de crearlo
+// =============================================================================
+function actualizarSimulacion() {
+  const raw = ($('fpr-monto').value || '').replace(/\./g, '');
+  const monto = num(raw);
+  const tasa = num($('fpr-tasa').value);
+  const tasaPeriodo = $('fpr-periodo').value;
+  const plazo = int($('fpr-plazo').value);
+  const sistema = $('fpr-sistema').value;
+  const sim = $('sim-box');
+  if (!monto || monto < 1) { sim.style.display = 'none'; return; }
+  sim.style.display = 'block';
+
+  const tasaM = tasaPeriodo === 'anual' ? tasa / 12 : tasa;
+  const interesMes = monto * (tasaM / 100);
+
+  if (plazo > 0) {
+    let cuota, totalPagar, intereses;
+    if (sistema === 'frances') {
+      cuota = calcFrancesCuota(monto, tasaM, plazo);
+      totalPagar = cuota * plazo;
+      intereses = totalPagar - monto;
+      $('sim-nota').textContent = `Sistema francés — cuota fija por ${plazo} ${pluralize(plazo, 'mes')}`;
+    } else {
+      cuota = monto / plazo + interesMes;
+      totalPagar = monto + interesMes * plazo;
+      intereses = interesMes * plazo;
+      $('sim-nota').textContent = `Sistema libre — cuota estimada por ${plazo} ${pluralize(plazo, 'mes')}`;
+    }
+    $('sim-cuota').textContent = fmt(cuota);
+    $('sim-total').textContent = fmt(totalPagar);
+    $('sim-intereses').textContent = fmt(intereses);
+  } else {
+    $('sim-cuota').textContent = fmt(interesMes);
+    $('sim-total').textContent = '—';
+    $('sim-intereses').textContent = fmt(interesMes) + '/mes';
+    $('sim-nota').textContent = 'Sin plazo definido — solo pagas interés mensual';
+  }
+}
+
+// =============================================================================
+// RENDER — dibuja el dashboard y la lista de personas
+// =============================================================================
 function render() {
   const search = document.querySelector('.tb input').value.toLowerCase().trim();
 
-  // KPIs
+  // --------------------------------------------------------------------------
+  // 1. KPIs
+  // --------------------------------------------------------------------------
   let capitalActivo = 0, porCobrar = 0, cobrado = 0;
   const personasActivasSet = new Set();
-  prestamos.forEach(pr => {
-    if (!personas.some(p => p.id === pr.personaId)) return;
+
+  for (const pr of prestamos) {
+    if (!personas.some(p => p.id === pr.personaId)) continue;
     const c = calcPrestamo(pr);
     if (c.estado !== 'pagado') {
       capitalActivo += c.capitalPendiente;
       porCobrar += c.saldoTotal;
       personasActivasSet.add(pr.personaId);
     }
-    (pr.abonos || []).forEach(a => { cobrado += a.monto; });
-  });
+    for (const a of (pr.abonos || [])) cobrado += a.monto;
+  }
+
   $('kp-capital').textContent = fmt(capitalActivo);
   $('kp-porcobrar').textContent = fmt(porCobrar);
   $('kp-cobrado').textContent = fmt(cobrado);
   $('kp-personas').textContent = personasActivasSet.size;
 
-  // Avisos
-  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  // --------------------------------------------------------------------------
+  // 2. Avisos de vencimiento (próximos 7 días)
+  // --------------------------------------------------------------------------
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
   const avisos = [];
-  prestamos.forEach(pr => {
-    if (!personas.some(p => p.id === pr.personaId)) return;
+
+  for (const pr of prestamos) {
+    if (!personas.some(p => p.id === pr.personaId)) continue;
     const c = calcPrestamo(pr);
-    if (c.estado === 'pagado' || !c.fechaVenc) return;
+    if (c.estado === 'pagado' || !c.fechaVenc) continue;
     const v = new Date(c.fechaVenc + 'T00:00:00');
-    const dias = Math.round((v - hoy) / (1000*60*60*24));
+    const dias = Math.round((v - hoy) / (1000 * 60 * 60 * 24));
     if (dias <= 7) {
       const per = personas.find(p => p.id === pr.personaId);
       avisos.push({ personaId: pr.personaId, nombre: per ? per.nombre : '—', saldo: c.saldoTotal, dias });
     }
-  });
-  avisos.sort((a,b) => a.dias - b.dias);
+  }
+  avisos.sort((a, b) => a.dias - b.dias);
+
   const avBox = $('avisos-box');
   if (avisos.length) {
     avBox.style.display = 'block';
     $('avisos-list').innerHTML = avisos.map(av => {
       const info = avisoLabel(av.dias);
-      return '<div class="av-item ' + info.cls + '" onclick="openDetalle(\'' + av.personaId + '\')">' +
-        '<span class="nm">' + esc(av.nombre) + '</span>' +
-        '<span class="tx ' + info.cls + '">' + info.text + '</span>' +
-        '<span class="mo">' + fmt(av.saldo) + '</span></div>';
+      return `<div class="av-item ${info.cls}" onclick="openDetalle('${av.personaId}')">
+        <span class="nm">${esc(av.nombre)}</span>
+        <span class="tx ${info.cls}">${info.text}</span>
+        <span class="mo">${fmt(av.saldo)}</span>
+      </div>`;
     }).join('');
   } else {
     avBox.style.display = 'none';
   }
 
-  // Personas list
+  // --------------------------------------------------------------------------
+  // 3. Lista de personas
+  // --------------------------------------------------------------------------
   let list = personas.map(p => {
-    const prs = prestamos.filter(pr => pr.personaId === p.id).map(pr => ({ ...pr, calc: calcPrestamo(pr) }));
+    const prs = prestamos
+      .filter(pr => pr.personaId === p.id)
+      .map(pr => ({ ...pr, calc: calcPrestamo(pr) }));
     const totalDebe = prs.reduce((s, pr) => s + pr.calc.saldoTotal, 0);
-    const estado = prs.length === 0 ? 'sin' : prs.map(pr => pr.calc.estado).sort((a,b) => {
+    const estados = prs.map(pr => pr.calc.estado).sort((a, b) => {
       const ord = { atrasado: 0, al_dia: 1, pagado: 2 };
       return ord[a] - ord[b];
-    })[0];
+    });
     const comp = calcComportamiento(prs);
-    return { ...p, prestamos: prs, totalDebe, estado, comp };
+    return { ...p, prestamos: prs, totalDebe, estado: prs.length === 0 ? 'sin' : estados[0], comp };
   });
 
-  if (search) list = list.filter(p => p.nombre.toLowerCase().includes(search) || (p.telefono || '').includes(search));
+  if (search) {
+    list = list.filter(p =>
+      p.nombre.toLowerCase().includes(search) || (p.telefono || '').includes(search)
+    );
+  }
 
-  const cont = $('personas-list'); const emp = $('personas-empty');
-  if (!list.length && !personas.length) { cont.innerHTML = ''; emp.style.display = 'block'; return; }
-  if (!list.length && personas.length) { cont.innerHTML = '<div class="empty"><p>No se encontró a nadie con ese nombre</p></div>'; emp.style.display = 'none'; return; }
+  const cont = $('personas-list');
+  const emp = $('personas-empty');
+  if (!list.length && !personas.length) {
+    cont.innerHTML = '';
+    emp.style.display = 'block';
+    return;
+  }
+  if (!list.length && personas.length) {
+    cont.innerHTML = '<div class="empty"><p>No se encontró a nadie con ese nombre</p></div>';
+    emp.style.display = 'none';
+    return;
+  }
   emp.style.display = 'none';
   cont.innerHTML = list.map(p => {
-    const stCls = p.estado === 'atrasado' ? 'stamp-r' : p.estado === 'pagado' ? 'stamp-g' : p.estado === 'al_dia' ? 'stamp-v' : null;
-    const stLbl = p.estado === 'atrasado' ? 'ATRASADO' : p.estado === 'pagado' ? 'PAGADO' : p.estado === 'al_dia' ? 'AL DÍA' : null;
-    return '<div class="ll-item" onclick="openDetalle(\'' + p.id + '\')">' +
-      '<div class="ll-info">' +
-        '<div class="ll-name">' + esc(p.nombre) +
-          (stCls ? '<span class="stamp ' + stCls + '" style="transform:none;font-size:9px">' + stLbl + '</span>' : '') +
-          (p.comp ? '<span class="pill pill-' + p.comp.cls + '">' + p.comp.label + '</span>' : '') +
-        '</div>' +
-        (p.telefono ? '<div class="ll-meta">📞 ' + esc(p.telefono) + '</div>' : '') +
-      '</div>' +
-      '<div class="ll-mny ' + (p.totalDebe > 0 ? 'g' : 'gr') + '">' + fmt(p.totalDebe) + '</div>' +
-    '</div>';
+    const stInfo = estadoInfo(p.estado);
+    const stCls = stInfo.stampCls;
+    const stLbl = stInfo.label;
+    return `<div class="ll-item" onclick="openDetalle('${p.id}')">
+      <div class="ll-info">
+        <div class="ll-name">${esc(p.nombre)}
+          ${stCls ? `<span class="stamp ${stCls}" style="transform:none;font-size:9px">${stLbl}</span>` : ''}
+          ${p.comp ? `<span class="pill pill-${p.comp.cls}">${p.comp.label}</span>` : ''}
+        </div>
+        ${p.telefono ? `<div class="ll-meta">📞 ${esc(p.telefono)}</div>` : ''}
+      </div>
+      <div class="ll-mny ${p.totalDebe > 0 ? 'g' : 'gr'}">${fmt(p.totalDebe)}</div>
+    </div>`;
   }).join('');
 }
 
-// ============ INIT ============
+// =============================================================================
+// INIT — carga inicial de datos
+// =============================================================================
 (async () => {
   try {
     const data = await loadFromApi();
     personas = data.personas || [];
-    prestamos = (data.prestamos || []).map(pr => { if (!pr.abonos) pr.abonos = []; if (!pr.sistema) pr.sistema = 'frances'; return pr; });
-  } catch(e) { toast('Error al cargar datos'); }
+    prestamos = (data.prestamos || []).map(pr => {
+      if (!pr.abonos) pr.abonos = [];
+      if (!pr.sistema) pr.sistema = 'frances';
+      return pr;
+    });
+  } catch(e) {
+    toast('Error al cargar datos');
+  }
   $('fpr-fecha').value = today();
   $('fab-fecha').value = today();
   render();
