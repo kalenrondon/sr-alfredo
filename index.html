@@ -487,10 +487,12 @@ function getCalendarMonths(d1, d2) {
   return Math.max(0, m);
 }
 
+const MS_MES = 1000 * 60 * 60 * 24 * 30.4375;
+
 /**
  * Calcula el estado actual de un préstamo.
- * Los intereses se cuentan por meses calendario completos (en el aniversario mensual).
- * Varios pagos en el mismo mes solo generan interés una vez.
+ * Los intereses se pagan por mes calendario. Si hay varios abonos en el mismo mes,
+ * solo el primero genera interés; los siguientes van directo al capital.
  * Retorna { capitalPendiente, interesAcumulado, saldoTotal, tasaM, estado, fechaPago, fechaVenc }
  */
 function calcPrestamo(pr) {
@@ -498,22 +500,26 @@ function calcPrestamo(pr) {
   const sistema = pr.sistema || 'frances';
   let balance = pr.monto;
   let interes = 0;
-  const fechaInicio = new Date(pr.fecha + 'T00:00:00');
+  let lastDate = new Date(pr.fecha + 'T00:00:00');
   const abonos = [...(pr.abonos || [])].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
   let fechaPago = null;
-  let mesesCubiertos = 0; // meses que ya devengaron interés
 
   for (const ab of abonos) {
     const d = new Date(ab.fecha + 'T00:00:00');
-    // Cuántos meses calendario han pasado desde el inicio
-    const mesesTranscurridos = getCalendarMonths(fechaInicio, d);
-    const mesesNuevos = mesesTranscurridos - mesesCubiertos;
 
-    // Acumular interés solo por meses nuevos
-    if (mesesNuevos > 0) {
-      interes += balance * (tasaM / 100) * mesesNuevos;
-      mesesCubiertos = mesesTranscurridos;
+    // Calcular meses transcurridos
+    let meses;
+    if (sistema === 'frances') {
+      meses = getCalendarMonths(lastDate, d);
+    } else {
+      // Libre: mínimo 1 mes si cambió de mes calendario, 0 si es el mismo mes
+      const esPrimerPago = lastDate.getTime() === new Date(pr.fecha + 'T00:00:00').getTime();
+      const mismoMes = d.getMonth() === lastDate.getMonth() && d.getFullYear() === lastDate.getFullYear();
+      meses = (!esPrimerPago && mismoMes) ? 0 : Math.max(1, Math.round((d - lastDate) / MS_MES));
     }
+
+    // Acumular interés sobre el saldo pendiente del período
+    interes += balance * (tasaM / 100) * meses;
 
     // Aplicar el pago
     const pago = ab.monto;
@@ -527,18 +533,25 @@ function calcPrestamo(pr) {
       interes -= pago;
     }
 
+    lastDate = d;
     // Marcar la fecha en que el saldo llegó a cero
     if (fechaPago === null && balance <= 1 && interes <= 1) {
       fechaPago = ab.fecha;
     }
   }
 
-  // Interés acumulado desde el último cobro hasta hoy
+  // Interés acumulado desde el último abono hasta hoy
   const hoy = new Date();
-  const mesesTotal = getCalendarMonths(fechaInicio, hoy);
-  const mesesPendientes = Math.max(0, mesesTotal - mesesCubiertos);
+  let mesesHoy;
+  if (sistema === 'frances') {
+    mesesHoy = getCalendarMonths(lastDate, hoy);
+  } else {
+    const mismoMesHoy = hoy.getMonth() === lastDate.getMonth() && hoy.getFullYear() === lastDate.getFullYear();
+    const noAbonos = abonos.length === 0;
+    mesesHoy = (!noAbonos && mismoMesHoy) ? 0 : Math.max(1, Math.round((hoy - lastDate) / MS_MES));
+  }
 
-  interes += balance * (tasaM / 100) * mesesPendientes;
+  interes += balance * (tasaM / 100) * mesesHoy;
   const saldoTotal = balance + interes;
 
   // Determinar estado y fecha de vencimiento
