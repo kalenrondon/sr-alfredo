@@ -1192,12 +1192,13 @@ function render() {
       .filter(pr => pr.personaId === p.id)
       .map(pr => ({ ...pr, calc: calcPrestamo(pr) }));
     const totalDebe = prs.reduce((s, pr) => s + pr.calc.saldoTotal, 0);
+    const totalInteres = prs.reduce((s, pr) => s + pr.calc.interesAcumulado, 0);
     const estados = prs.map(pr => pr.calc.estado).sort((a, b) => {
       const ord = { atrasado: 0, al_dia: 1, pagado: 2 };
       return ord[a] - ord[b];
     });
     const comp = calcComportamiento(prs);
-    return { ...p, prestamos: prs, totalDebe, estado: prs.length === 0 ? 'sin' : estados[0], comp };
+    return { ...p, prestamos: prs, totalDebe, totalInteres, estado: prs.length === 0 ? 'sin' : estados[0], comp };
   });
 
   if (search) {
@@ -1234,7 +1235,10 @@ function render() {
         </div>
         ${p.telefono ? `<div class="ll-meta">📞 ${esc(p.telefono)}</div>` : ''}
       </div>
-      <div class="ll-mny ${p.totalDebe > 0 ? 'g' : 'gr'}">${fmt(p.totalDebe)}</div>
+      <div style="text-align:right">
+        <div class="ll-mny ${p.totalDebe > 0 ? 'g' : 'gr'}">${fmt(p.totalDebe)}</div>
+        ${p.totalInteres > 100 ? `<div style="font-size:11px;color:var(--red);font-family:'IBM Plex Mono',monospace">+ ${fmt(p.totalInteres)} intereses</div>` : ''}
+      </div>
     </div>`;
   }).join('');
 }
