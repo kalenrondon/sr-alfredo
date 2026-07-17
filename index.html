@@ -540,9 +540,8 @@ function calcPrestamo(pr) {
       interes = 0;
       balance = Math.max(0, balance - resto);
     } else {
-      // Pagó menos del interés → el interés impago se capitaliza (se suma al capital)
-      balance += interes - pago;
-      interes = 0;
+      // Pagó menos del interés → el interés impago sigue siendo interés (no se capitaliza)
+      interes -= pago;
     }
 
     lastDate = d;
