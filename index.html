@@ -903,7 +903,7 @@ function openAbonoForm(prestamoId) {
       sugerido = Math.round(capPart + intPart);
     }
   } else {
-    sugerido = Math.round(Math.max(calc.interesAcumulado, calc.capitalPendiente * (tasaM / 100)));
+    sugerido = Math.round(calc.interesAcumulado);
   }
 
   $('fab-monto').value = sugerido > 0 ? sugerido.toString() : '';
