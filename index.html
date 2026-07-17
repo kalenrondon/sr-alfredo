@@ -880,10 +880,16 @@ function openAbonoForm(prestamoId) {
   const tasaM = getTasaMensual(pr);
   const sistema = pr.sistema || 'frances';
   let sugerido;
-  if (sistema === 'frances' && pr.plazoMeses) {
-    sugerido = Math.round(calcFrancesCuota(pr.monto, tasaM, pr.plazoMeses));
+  if (pr.plazoMeses) {
+    if (sistema === 'frances') {
+      sugerido = Math.round(calcFrancesCuota(pr.monto, tasaM, pr.plazoMeses));
+    } else {
+      const capPart = pr.monto / pr.plazoMeses;
+      const intPart = calc.capitalPendiente * (tasaM / 100);
+      sugerido = Math.round(capPart + intPart);
+    }
   } else {
-    sugerido = Math.round(Math.max(calc.interesAcumulado, calc.capitalPendiente * (calc.tasaM / 100)));
+    sugerido = Math.round(Math.max(calc.interesAcumulado, calc.capitalPendiente * (tasaM / 100)));
   }
 
   $('fab-monto').value = sugerido > 0 ? sugerido.toString() : '';
