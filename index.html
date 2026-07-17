@@ -624,34 +624,28 @@ function renderLoanCard(pr, calc) {
   const stLbl = stInfo.label;
   const stCls = stInfo.stampCls;
 
-  let cuotaMensual = 0, totalPagar = 0, interesTotal = 0;
+  let cuotaMensual = 0;
   if (pr.plazoMeses) {
     if (sistema === 'frances') {
       cuotaMensual = calcFrancesCuota(pr.monto, tasaM, pr.plazoMeses);
-      totalPagar = cuotaMensual * pr.plazoMeses;
     } else {
-      const interesMes = pr.monto * (tasaM / 100);
-      cuotaMensual = pr.monto / pr.plazoMeses + interesMes;
-      totalPagar = pr.monto + interesMes * pr.plazoMeses;
+      cuotaMensual = pr.monto / pr.plazoMeses + pr.monto * (tasaM / 100);
     }
-    interesTotal = totalPagar - pr.monto;
   }
+
+  const interesPorMes = calc.capitalPendiente * (tasaM / 100);
 
   const fechaCabecera = calc.estado === 'pagado'
     ? `<div style="font-size:12px;color:var(--ink-soft)">✅ Pagado ${formatFecha(calc.fechaPago)}</div>`
     : '<div></div>';
 
   const gridComun = () => `
-    <div class="di"><div class="t">Capital</div><div class="v">${fmt(pr.monto)}</div></div>
-    <div class="di"><div class="t">Tasa</div><div class="v">${pr.tasa}% ${pr.tasaPeriodo === 'anual' ? 'anual' : 'mensual'}</div></div>
-    <div class="di"><div class="t">Saldo hoy</div><div class="v" style="color:var(--gold)">${fmt(calc.saldoTotal)}</div></div>
-    <div class="di"><div class="t">Sistema</div><div class="v" style="color:var(--ink-soft)">${sistema === 'frances' ? 'Francés' : 'Libre'}</div></div>`;
+    <div class="di"><div class="t">Saldo hoy</div><div class="v" style="color:var(--gold);font-size:18px">${fmt(calc.saldoTotal)}</div></div>
+    <div class="di"><div class="t">Interés por mes</div><div class="v">${fmt(interesPorMes)}</div></div>`;
 
   const gridConPlazo = () => `
     ${gridComun()}
-    <div class="di"><div class="t">Cuota mensual</div><div class="v">${fmt(cuotaMensual)}</div></div>
-    <div class="di"><div class="t">Total a pagar</div><div class="v" style="color:var(--red)">${fmt(totalPagar)}</div></div>
-    <div class="di"><div class="t">Intereses totales</div><div class="v" style="color:var(--ink-soft)">${fmt(interesTotal)}</div></div>`;
+    <div class="di"><div class="t">Cuota mensual</div><div class="v">${fmt(cuotaMensual)}</div></div>`;
 
   const notaHtml = pr.nota
     ? `<p style="font-size:13px;color:var(--ink-soft);font-style:italic;margin-bottom:8px">💬 "${esc(pr.nota)}"</p>`
