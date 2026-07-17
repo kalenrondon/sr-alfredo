@@ -504,7 +504,7 @@ function calcPrestamo(pr) {
 
   for (const ab of abonos) {
     const d = new Date(ab.fecha + 'T00:00:00');
-    // Calcular meses calendario completos entre pagos
+    // Calcular meses transcurridos
     const meses = getCalendarMonths(lastDate, d);
 
     // Acumular interés sobre el saldo pendiente del período
@@ -993,39 +993,6 @@ function renderDetalle() {
     res.innerHTML += `</div>`;
   } else {
     res.style.display = 'none';
-  }
-
-  // Historial mensual
-  if (activeLoan) {
-    const fechaInicio = new Date(activeLoan.fecha + 'T00:00:00');
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const meses = [];
-    let cursor = new Date(fechaInicio);
-    while (cursor <= hoy) {
-      meses.push(new Date(cursor));
-      cursor.setMonth(cursor.getMonth() + 1);
-    }
-    const rows = meses.map((d, i) => {
-      const fin = i < meses.length - 1 ? meses[i + 1] : new Date(hoy.getTime() + 86400000);
-      const pagos = (activeLoan.abonos || []).filter(a => {
-        const af = new Date(a.fecha + 'T00:00:00');
-        return af >= d && af < fin;
-      });
-      const total = pagos.reduce((s, a) => s + a.monto, 0);
-      const vencio = fin <= hoy;
-      const etiqueta = fin <= hoy
-        ? fin.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' })
-        : 'Este mes';
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;border-bottom:1px solid var(--line)">
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft)">${etiqueta}</span>
-        <span style="font-family:'IBM Plex Mono',monospace;font-weight:${total ? 600 : 400};color:${total ? 'var(--green)' : vencio ? 'var(--red)' : 'var(--ink-soft)'}">${total ? fmt(total) : vencio ? '—' : '⏳'}</span>
-      </div>`;
-    }).join('');
-    res.innerHTML += `<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line)">
-      <div style="font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:4px">📅 Abonos por mes</div>
-      ${rows}
-    </div>`;
   }
 
   // Metadatos (extra)
