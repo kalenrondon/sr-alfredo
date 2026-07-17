@@ -10,7 +10,7 @@
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--paper:#EFE8D8;--paper-2:#E4DCC6;--card:#FBF8F1;--ink:#22412E;--ink-soft:#5B6F5F;--gold:#B8862B;--gold-soft:#D9A94A;--red:#A03A3A;--green:#2F5233;--line:#CFC4A3;--radius:8px}
-body{background:var(--paper);font-family:'Inter',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;padding-bottom:24px;font-size:16px}
+body{background:var(--paper);font-family:'Inter',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;padding-bottom:80px;font-size:16px}
 .font-d{font-family:'Roboto Slab',serif}
 .font-m{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
 
@@ -28,11 +28,6 @@ body{background:var(--paper);font-family:'Inter',sans-serif;color:var(--ink);-we
 .rs-i .l{font-size:11px;color:var(--ink-soft);font-weight:500;margin-bottom:2px}
 .rs-i .v{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700}
 .rs-i .v.gold{color:var(--gold)}
-
-/* ===== CONFIG SEARCH ===== */
-.cfg-srch{display:flex;gap:8px;margin-bottom:16px;width:100%}
-.cfg-srch input{flex:1;padding:14px 14px;border:1.5px solid var(--line);border-radius:6px;font-size:18px;font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);outline:none;width:100%}
-.cfg-srch input:focus{border-color:var(--gold)}
 
 /* ===== AVISOS ===== */
 .avisos{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px}
@@ -57,12 +52,12 @@ body{background:var(--paper);font-family:'Inter',sans-serif;color:var(--ink);-we
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:6px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:0.15s;white-space:nowrap;-webkit-tap-highlight-color:transparent;line-height:1.4}
 .btn:active{opacity:0.8}
 .btn-p{background:var(--ink);color:var(--paper-2);font-size:16px;padding:14px 24px}
-.btn-ph{padding:14px 18px;font-size:18px;border-radius:50%}
 .btn-s{background:transparent;color:var(--ink);border:1.5px solid var(--line);font-size:15px;font-weight:500;padding:13px 14px}
 .btn-sm{padding:8px 14px;font-size:13px}
 .btn-ico{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;color:var(--ink-soft);cursor:pointer;transition:0.15s;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:16px}
 .btn-ico:active{background:var(--paper-2)}
 .btn-d{color:var(--red)}
+.btn-d.btn-s{border-color:var(--red)}
 
 /* ===== LEDGER LIST ===== */
 .ll{display:flex;flex-direction:column;gap:16px}
@@ -93,19 +88,6 @@ body{background:var(--paper);font-family:'Inter',sans-serif;color:var(--ink);-we
 .pill-g{background:#F3E7CE;color:var(--gold)}
 .pill-r{background:#F3E3E3;color:var(--red)}
 
-/* ===== SECTION ===== */
-.sec{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:14px;overflow:hidden}
-.sec-h{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);font-size:16px;font-weight:600}
-.sec-h .ct{font-size:12px;color:var(--ink-soft);font-weight:500}
-.sec-b{padding:16px 18px}
-
-/* ===== TABLE ===== */
-.scr{overflow-x:auto;-webkit-overflow-scrolling:touch}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th{padding:12px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.4px;background:var(--paper);border-bottom:1px solid var(--line)}
-td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
-tr:last-child td{border-bottom:none}
-
 /* ===== MODAL ===== */
 .mo{display:none;position:fixed;inset:0;background:rgba(34,65,46,0.45);z-index:200;align-items:flex-end;justify-content:center;padding:12px}
 .mo.show{display:flex}
@@ -116,13 +98,11 @@ tr:last-child td{border-bottom:none}
 .mo-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .mo-h h3{font-family:'Roboto Slab',serif;font-size:22px;color:var(--ink)}
 .mo-sec{padding:12px 14px;background:var(--paper-2);border-radius:6px;margin-bottom:12px}
-.mo-sec.g{background:transparent;border:1px solid var(--line);padding:0}
 .ab-h{display:flex;align-items:center;gap:4px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;padding:4px 0}
 .ab-h:hover{opacity:0.7}
 .ab-arr{font-size:12px;transition:transform 0.2s;display:inline-block}
 .ab-arr.open{transform:rotate(90deg)}
 .hide{display:none}
-.mo-sec2{padding:14px 0;border-bottom:1px solid var(--line);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 
 /* ===== FORM ===== */
 .fg{margin-bottom:14px}
@@ -243,7 +223,6 @@ tr:last-child td{border-bottom:none}
       <div id="det-meta" class="mo-sec" style="display:none"></div>
       <div style="display:flex;gap:10px;margin-bottom:14px">
         <button class="btn btn-p" id="det-add-loan" style="flex:1;font-size:18px;padding:16px">💰 + Abono</button>
-        <button class="btn btn-s" id="det-edit-btn" style="font-size:15px;padding:16px">✏️</button>
         <button class="btn btn-s btn-d" id="det-del-btn" style="font-size:15px;padding:16px">🗑</button>
       </div>
       <div id="det-prestamos"></div>
@@ -478,8 +457,6 @@ function autoPuntos(el) {
 // =============================================================================
 
 /** Constante: días promedio por mes (usado en sistema Libre) */
-const MS_MES = 1000 * 60 * 60 * 24 * 30.4375;
-
 /** Retorna la tasa mensual (decimal porcentual) a partir del préstamo */
 function getTasaMensual(pr) {
   return pr.tasaPeriodo === 'anual' ? pr.tasa / 12 : pr.tasa;
@@ -512,8 +489,8 @@ function getCalendarMonths(d1, d2) {
 
 /**
  * Calcula el estado actual de un préstamo.
- * Para sistema francés: los intereses se cuentan por meses calendario completos.
- * Para sistema libre: los intereses son proporcionales a los días transcurridos.
+ * Los intereses se cuentan por meses calendario completos (en el aniversario mensual).
+ * Varios pagos en el mismo mes solo generan interés una vez.
  * Retorna { capitalPendiente, interesAcumulado, saldoTotal, tasaM, estado, fechaPago, fechaVenc }
  */
 function calcPrestamo(pr) {
@@ -527,10 +504,8 @@ function calcPrestamo(pr) {
 
   for (const ab of abonos) {
     const d = new Date(ab.fecha + 'T00:00:00');
-    // Calcular meses transcurridos
-    const meses = sistema === 'frances'
-      ? getCalendarMonths(lastDate, d)
-      : Math.max(1, Math.round((d - lastDate) / MS_MES));
+    // Calcular meses calendario completos entre pagos
+    const meses = getCalendarMonths(lastDate, d);
 
     // Acumular interés sobre el saldo pendiente del período
     interes += balance * (tasaM / 100) * meses;
@@ -875,6 +850,19 @@ function openAbonoForm(prestamoId) {
   const intAcumHtml = calc.interesAcumulado > 100
     ? `<div style="margin-top:4px;font-size:13px">Interés acumulado: <b style="font-family:'IBM Plex Mono',monospace;color:var(--red)">${fmt(calc.interesAcumulado)}</b></div>`
     : '';
+  const abonos = pr.abonos || [];
+  const ultimosAbonos = abonos.slice().sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).slice(0, 5);
+  const abonosHtml = ultimosAbonos.length
+    ? `<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">
+        <div style="font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:4px">Últimos abonos:</div>
+        ${ultimosAbonos.map(a =>
+          `<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;font-family:'IBM Plex Mono',monospace">
+            <span>${formatFecha(a.fecha)}</span><span style="color:var(--green);font-weight:600">${fmt(a.monto)}</span>
+          </div>`
+        ).join('')}
+        ${abonos.length > 5 ? `<div style="font-size:11px;color:var(--ink-soft);text-align:center;margin-top:2px">+${abonos.length - 5} más</div>` : ''}
+      </div>`
+    : '';
   $('abono-info').innerHTML = `<div style="text-align:center">
     <div style="font-size:16px;font-weight:600">${esc(per ? per.nombre : '—')}</div>
     <div style="margin-top:6px;display:flex;justify-content:center;gap:20px;font-size:14px">
@@ -882,6 +870,7 @@ function openAbonoForm(prestamoId) {
       <span>Interés <b style="font-family:'IBM Plex Mono',monospace;font-size:18px">${fmt(interesPorMes)}</b>/mes</span>
     </div>
     ${intAcumHtml}
+    ${abonosHtml}
   </div>`;
 
   const tasaM = getTasaMensual(pr);
@@ -1006,6 +995,39 @@ function renderDetalle() {
     res.style.display = 'none';
   }
 
+  // Historial mensual
+  if (activeLoan) {
+    const fechaInicio = new Date(activeLoan.fecha + 'T00:00:00');
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const meses = [];
+    let cursor = new Date(fechaInicio);
+    while (cursor <= hoy) {
+      meses.push(new Date(cursor));
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+    const rows = meses.map((d, i) => {
+      const fin = i < meses.length - 1 ? meses[i + 1] : new Date(hoy.getTime() + 86400000);
+      const pagos = (activeLoan.abonos || []).filter(a => {
+        const af = new Date(a.fecha + 'T00:00:00');
+        return af >= d && af < fin;
+      });
+      const total = pagos.reduce((s, a) => s + a.monto, 0);
+      const vencio = fin <= hoy;
+      const etiqueta = fin <= hoy
+        ? fin.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' })
+        : 'Este mes';
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;border-bottom:1px solid var(--line)">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft)">${etiqueta}</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-weight:${total ? 600 : 400};color:${total ? 'var(--green)' : vencio ? 'var(--red)' : 'var(--ink-soft)'}">${total ? fmt(total) : vencio ? '—' : '⏳'}</span>
+      </div>`;
+    }).join('');
+    res.innerHTML += `<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line)">
+      <div style="font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:4px">📅 Abonos por mes</div>
+      ${rows}
+    </div>`;
+  }
+
   // Metadatos (extra)
   const meta = [];
   if (p.telefono) meta.push(`📞 ${esc(p.telefono)}`);
@@ -1019,7 +1041,6 @@ function renderDetalle() {
   }
 
   // Botones
-  $('det-edit-btn').onclick = () => { closeModal('m-detalle'); openPersonaForm(p.id); };
   $('det-del-btn').onclick = () => eliminarPersona(p.id);
   if (activeLoan) {
     $('det-add-loan').textContent = '💰 Registrar abono';
@@ -1131,14 +1152,24 @@ function render() {
   const search = _searchQuery;
 
   // --------------------------------------------------------------------------
+  // 0. Pre-computar cálculos de todos los préstamos
+  // --------------------------------------------------------------------------
+  const calcMap = new Map();
+  for (const pr of prestamos) {
+    if (personas.some(p => p.id === pr.personaId)) {
+      calcMap.set(pr.id, calcPrestamo(pr));
+    }
+  }
+
+  // --------------------------------------------------------------------------
   // 1. KPIs
   // --------------------------------------------------------------------------
   let capitalActivo = 0, porCobrar = 0, cobrado = 0;
   const personasActivasSet = new Set();
 
   for (const pr of prestamos) {
-    if (!personas.some(p => p.id === pr.personaId)) continue;
-    const c = calcPrestamo(pr);
+    const c = calcMap.get(pr.id);
+    if (!c) continue;
     if (c.estado !== 'pagado') {
       capitalActivo += c.capitalPendiente;
       porCobrar += c.saldoTotal;
@@ -1160,8 +1191,8 @@ function render() {
   const avisos = [];
 
   for (const pr of prestamos) {
-    if (!personas.some(p => p.id === pr.personaId)) continue;
-    const c = calcPrestamo(pr);
+    const c = calcMap.get(pr.id);
+    if (!c) continue;
     if (c.estado === 'pagado' || !c.fechaVenc) continue;
     const v = new Date(c.fechaVenc + 'T00:00:00');
     const dias = Math.round((v - hoy) / (1000 * 60 * 60 * 24));
@@ -1193,7 +1224,7 @@ function render() {
   let list = personas.map(p => {
     const prs = prestamos
       .filter(pr => pr.personaId === p.id)
-      .map(pr => ({ ...pr, calc: calcPrestamo(pr) }));
+      .map(pr => ({ ...pr, calc: calcMap.get(pr.id) }));
     const totalDebe = prs.reduce((s, pr) => s + pr.calc.saldoTotal, 0);
     const totalInteres = prs.reduce((s, pr) => s + pr.calc.interesAcumulado, 0);
     const estados = prs.map(pr => pr.calc.estado).sort((a, b) => {
