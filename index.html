@@ -869,12 +869,16 @@ function openAbonoForm(prestamoId) {
   const calc = calcPrestamo(pr);
   const per = personas.find(p => p.id === pr.personaId);
   const interesPorMes = calc.capitalPendiente * (calc.tasaM / 100);
+  const intAcumHtml = calc.interesAcumulado > 100
+    ? `<div style="margin-top:4px;font-size:13px">Interés acumulado: <b style="font-family:'IBM Plex Mono',monospace;color:var(--red)">${fmt(calc.interesAcumulado)}</b></div>`
+    : '';
   $('abono-info').innerHTML = `<div style="text-align:center">
     <div style="font-size:16px;font-weight:600">${esc(per ? per.nombre : '—')}</div>
     <div style="margin-top:6px;display:flex;justify-content:center;gap:20px;font-size:14px">
       <span>Debe <b style="font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--gold)">${fmt(calc.saldoTotal)}</b></span>
       <span>Interés <b style="font-family:'IBM Plex Mono',monospace;font-size:18px">${fmt(interesPorMes)}</b>/mes</span>
     </div>
+    ${intAcumHtml}
   </div>`;
 
   const tasaM = getTasaMensual(pr);
