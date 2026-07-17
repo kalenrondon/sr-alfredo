@@ -532,14 +532,17 @@ function calcPrestamo(pr) {
     // Acumular interés sobre el saldo pendiente del período
     interes += balance * (tasaM / 100) * meses;
 
-    // Aplicar el pago: primero cubre interés, luego reduce capital
+    // Aplicar el pago
     const pago = ab.monto;
-    if (pago <= interes + 0.005) {
-      interes -= pago;
-    } else {
-      let resto = pago - interes;
+    if (pago >= interes - 0.005) {
+      // Pagó al menos el interés → el excedente reduce capital
+      const resto = pago - interes;
       interes = 0;
       balance = Math.max(0, balance - resto);
+    } else {
+      // Pagó menos del interés → el interés impago se capitaliza (se suma al capital)
+      balance += interes - pago;
+      interes = 0;
     }
 
     lastDate = d;
