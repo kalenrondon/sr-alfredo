@@ -9,173 +9,171 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--paper:#EFE8D8;--paper-2:#E4DCC6;--card:#FBF8F1;--ink:#22412E;--ink-soft:#5B6F5F;--gold:#B8862B;--gold-soft:#D9A94A;--red:#A03A3A;--green:#2F5233;--line:#CFC4A3;--radius:6px}
-body{background:var(--paper);font-family:'Inter',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;padding-bottom:32px}
+:root{--paper:#EFE8D8;--paper-2:#E4DCC6;--card:#FBF8F1;--ink:#22412E;--ink-soft:#5B6F5F;--gold:#B8862B;--gold-soft:#D9A94A;--red:#A03A3A;--green:#2F5233;--line:#CFC4A3;--radius:8px}
+body{background:var(--paper);font-family:'Inter',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;padding-bottom:24px;font-size:16px}
 .font-d{font-family:'Roboto Slab',serif}
 .font-m{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
 
 /* ===== HEADER ===== */
-.hd{max-width:1024px;margin:0 auto;padding:24px 16px 0}
+.hd{max-width:100%;margin:0 auto;padding:20px 16px 0}
 .hd-top{display:flex;align-items:center;gap:10px;margin-bottom:2px}
-.hd-top .ico{font-size:28px}
-.hd-top h1{font-family:'Roboto Slab',serif;font-size:26px;color:var(--ink)}
-.hd p{font-size:13px;color:var(--ink-soft);margin-bottom:20px}
+.hd-top .ico{font-size:32px}
+.hd-top h1{font-family:'Roboto Slab',serif;font-size:30px;color:var(--ink)}
 
-/* ===== CARDS ===== */
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
-.card .lbl{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:4px}
-.card .val{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600}
-.card .val.gold{color:var(--gold)}
+/* ===== RESUME (config) ===== */
+.rs{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.rs-h{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:10px}
+.rs-g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rs-i{text-align:center;padding:8px 6px;background:var(--paper);border-radius:6px}
+.rs-i .l{font-size:11px;color:var(--ink-soft);font-weight:500;margin-bottom:2px}
+.rs-i .v{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700}
+.rs-i .v.gold{color:var(--gold)}
+
+/* ===== CONFIG SEARCH ===== */
+.cfg-srch{display:flex;gap:8px;margin-bottom:16px;width:100%}
+.cfg-srch input{flex:1;padding:14px 14px;border:1.5px solid var(--line);border-radius:6px;font-size:18px;font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);outline:none;width:100%}
+.cfg-srch input:focus{border-color:var(--gold)}
 
 /* ===== AVISOS ===== */
-.avisos{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px}
-.avisos-h{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:10px}
-.av-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-left:3px solid var(--line);border-radius:3px;cursor:pointer;transition:background 0.15s}
-.av-item:hover{background:var(--paper-2)}
+.avisos{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px}
+.avisos-h{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:10px}
+.av-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-left:4px solid var(--line);border-radius:4px;cursor:pointer}
 .av-item.r{border-left-color:var(--red)}
 .av-item.g{border-left-color:var(--gold)}
-.av-item .nm{font-family:'Roboto Slab',serif;font-size:14px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.av-item .tx{font-size:11px;font-weight:600}
+.av-item .nm{font-family:'Roboto Slab',serif;font-size:16px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av-item .tx{font-size:13px;font-weight:600}
 .av-item .tx.r{color:var(--red)}
 .av-item .tx.g{color:var(--gold)}
-.av-item .mo{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;text-align:right}
+.av-item .mo{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:right}
 
 /* ===== TOOLBAR ===== */
-.tb{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.tb input{flex:1;min-width:160px;padding:9px 11px 9px 34px;border:1.5px solid var(--line);border-radius:5px;font-size:14px;font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);outline:none}
-.tb input:focus{border-color:var(--gold)}
-.tb-wrap{position:relative;flex:1;min-width:160px}
-.tb-wrap .srch{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--ink-soft);pointer-events:none}
+.tb{display:flex;gap:10px;margin-bottom:16px}
 
 /* ===== BUTTONS ===== */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;border-radius:5px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:0.15s;white-space:nowrap;-webkit-tap-highlight-color:transparent;line-height:1.4}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:6px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:0.15s;white-space:nowrap;-webkit-tap-highlight-color:transparent;line-height:1.4}
 .btn:active{opacity:0.8}
-.btn-p{background:var(--ink);color:var(--paper-2);font-size:14px;padding:9px 16px}
-.btn-p:hover{opacity:0.85}
-.btn-s{background:transparent;color:var(--ink);border:1.5px solid var(--line);font-size:13px;font-weight:500;padding:7px 12px}
-.btn-s:hover{background:var(--paper-2)}
+.btn-p{background:var(--ink);color:var(--paper-2);font-size:16px;padding:14px 24px}
+.btn-ph{padding:14px 18px;font-size:18px;border-radius:50%}
+.btn-s{background:transparent;color:var(--ink);border:1.5px solid var(--line);font-size:15px;font-weight:500;padding:13px 14px}
+.btn-sm{padding:8px 14px;font-size:13px}
+.btn-ico{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;color:var(--ink-soft);cursor:pointer;transition:0.15s;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:16px}
+.btn-ico:active{background:var(--paper-2)}
 .btn-d{color:var(--red)}
-.btn-sm{padding:5px 10px;font-size:12px}
-.btn-ico{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;color:var(--ink-soft);transition:0.15s}
-.btn-ico:hover{background:var(--paper-2);color:var(--ink)}
 
 /* ===== LEDGER LIST ===== */
-.ll{display:flex;flex-direction:column;gap:10px}
-.ll-item{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.ll{display:flex;flex-direction:column;gap:14px}
+.ll-item{background:var(--card);border-left:5px solid var(--line);border-radius:var(--radius);padding:20px 18px;display:flex;align-items:center;gap:14px;cursor:pointer}
 .ll-item:active{background:var(--paper-2)}
+.ll-item.st-al_dia{border-left-color:var(--green)}
+.ll-item.st-atrasado{border-left-color:var(--red)}
+.ll-item.st-pagado{border-left-color:var(--ink-soft)}
 .ll-info{flex:1;min-width:0}
-.ll-name{font-family:'Roboto Slab',serif;font-size:16px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
-.ll-name .bt{font-size:11px}
-.ll-meta{font-size:12px;color:var(--ink-soft);margin-top:2px;display:flex;align-items:center;gap:4px}
-.ll-mny{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;text-align:right}
+.ll-name{font-family:'Roboto Slab',serif;font-size:20px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ll-meta{font-size:14px;color:var(--ink-soft);margin-top:4px;display:flex;align-items:center;gap:4px}
+.ll-mny{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;text-align:right}
 .ll-mny.g{color:var(--gold)}
 .ll-mny.gr{color:var(--ink-soft)}
 .empty{text-align:center;padding:40px 20px;color:var(--ink-soft)}
-.empty .ico{font-size:32px;opacity:0.4;margin-bottom:8px}
-.empty p{font-size:14px;margin-bottom:12px}
+.empty .ico{font-size:42px;opacity:0.4;margin-bottom:10px}
+.empty p{font-size:16px;margin-bottom:14px}
 
 /* ===== STAMP ===== */
-.stamp{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border:2px solid currentColor;border-radius:3px;font-family:'Roboto Slab',serif;font-weight:700;font-size:10px;letter-spacing:0.09em;text-transform:uppercase;transform:rotate(-3deg);white-space:nowrap}
+.stamp{display:inline-flex;align-items:center;gap:4px;padding:3px 12px;border:2px solid currentColor;border-radius:4px;font-family:'Roboto Slab',serif;font-weight:700;font-size:11px;letter-spacing:0.09em;text-transform:uppercase;transform:rotate(-2deg);white-space:nowrap}
 .stamp-v{color:var(--green)}
 .stamp-r{color:var(--red)}
 .stamp-g{color:var(--gold)}
 
 /* ===== PILL ===== */
-.pill{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:10px;font-weight:600}
+.pill{display:inline-flex;align-items:center;padding:3px 11px;border-radius:999px;font-size:11px;font-weight:600}
 .pill-v{background:#E3EDE4;color:var(--green)}
 .pill-g{background:#F3E7CE;color:var(--gold)}
 .pill-r{background:#F3E3E3;color:var(--red)}
 
 /* ===== SECTION ===== */
-.sec{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
-.sec-h{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);font-size:14px;font-weight:600}
-.sec-h .ct{font-size:11px;color:var(--ink-soft);font-weight:500}
-.sec-b{padding:14px 16px}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:14px;overflow:hidden}
+.sec-h{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);font-size:16px;font-weight:600}
+.sec-h .ct{font-size:12px;color:var(--ink-soft);font-weight:500}
+.sec-b{padding:16px 18px}
 
 /* ===== TABLE ===== */
 .scr{overflow-x:auto;-webkit-overflow-scrolling:touch}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{padding:10px 12px;text-align:left;font-size:10px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.4px;background:var(--paper);border-bottom:1px solid var(--line)}
-td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{padding:12px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.4px;background:var(--paper);border-bottom:1px solid var(--line)}
+td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
 tr:last-child td{border-bottom:none}
 
 /* ===== MODAL ===== */
-.mo{display:none;position:fixed;inset:0;background:rgba(34,65,46,0.45);z-index:200;align-items:flex-end;justify-content:center;padding:16px}
+.mo{display:none;position:fixed;inset:0;background:rgba(34,65,46,0.45);z-index:200;align-items:flex-end;justify-content:center;padding:12px}
 .mo.show{display:flex}
 .mo-c{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);width:100%;max-width:500px;overflow:hidden;animation:up 0.25s ease;display:flex;flex-direction:column;max-height:96vh}
 .mo-c-hd{padding:24px 20px 0}
-.mo-c-scroll{padding:0 20px 12px;overflow-y:auto;flex:1;min-height:0}
+.mo-c-scroll{padding:0 20px 14px;overflow-y:auto;flex:1;min-height:0}
 @keyframes up{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 .mo-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.mo-h h3{font-family:'Roboto Slab',serif;font-size:18px;color:var(--ink)}
-.mo-sec{padding:10px 12px;background:var(--paper-2);border-radius:4px;margin-bottom:12px}
+.mo-h h3{font-family:'Roboto Slab',serif;font-size:22px;color:var(--ink)}
+.mo-sec{padding:12px 14px;background:var(--paper-2);border-radius:6px;margin-bottom:12px}
+.mo-sec.g{background:transparent;border:1px solid var(--line);padding:0}
 .ab-h{display:flex;align-items:center;gap:4px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;padding:4px 0}
 .ab-h:hover{opacity:0.7}
 .ab-arr{font-size:12px;transition:transform 0.2s;display:inline-block}
 .ab-arr.open{transform:rotate(90deg)}
 .hide{display:none}
-.mo-sec2{padding:12px 0;border-bottom:1px solid var(--line);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.mo-sec2{padding:14px 0;border-bottom:1px solid var(--line);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 
 /* ===== FORM ===== */
-.fg{margin-bottom:12px}
-.fg label{display:block;font-size:10px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:4px}
-.fg input,.fg select{width:100%;padding:9px 11px;border:1.5px solid var(--line);border-radius:5px;font-size:14px;font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);outline:none;-webkit-appearance:none;appearance:none}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:5px}
+.fg input,.fg select{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:6px;font-size:16px;font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);outline:none;-webkit-appearance:none;appearance:none}
 .fg input:focus,.fg select:focus{border-color:var(--gold)}
 .fg input.err{border-color:var(--red)}
-.fg .hint{font-size:11px;color:var(--red);margin-top:2px}
+.fg .hint{font-size:12px;color:var(--red);margin-top:3px}
 .fg .mono{font-family:'IBM Plex Mono',monospace}
-.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mf{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mf{display:flex;gap:10px;justify-content:flex-end;margin-top:10px}
 
 /* ===== DETAIL ===== */
-.dg{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
-.di .t{font-size:10px;color:var(--ink-soft);font-weight:600}
-.di .v{font-size:14px;font-weight:700;margin-top:1px;font-family:'IBM Plex Mono',monospace}
-.pb{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin:8px 0}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+.di .t{font-size:11px;color:var(--ink-soft);font-weight:600}
+.di .v{font-size:16px;font-weight:700;margin-top:2px;font-family:'IBM Plex Mono',monospace}
+.pb{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:10px 0}
 .pf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green),var(--gold));transition:width 0.4s}
-.pl{margin-top:8px}
-.pr{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+.pl{margin-top:10px}
+.pr{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
 .pr:last-child{border-bottom:none}
-.pr .dt{font-size:11px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace}
+.pr .dt{font-size:12px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace}
 .pr .mo{font-weight:700;color:var(--green);font-family:'IBM Plex Mono',monospace}
-.pr .rm{font-size:11px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace}
+.pr .rm{font-size:12px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace}
 
 /* ===== SIMULATION ===== */
 .sim{background:var(--paper);border-top:2px solid var(--gold);padding:12px 16px;flex-shrink:0}
-.sim-h{font-size:10px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:8px}
+.sim-h{font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:8px}
 .sim-g{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .sim-i{text-align:center}
-.sim-i .l{font-size:9px;color:var(--ink-soft);font-weight:500;margin-bottom:1px}
-.sim-i .v{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700}
+.sim-i .l{font-size:10px;color:var(--ink-soft);font-weight:500;margin-bottom:1px}
+.sim-i .v{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700}
 .sim-i .v.gold{color:var(--gold)}
 .sim-i .v.soft{color:var(--ink-soft)}
-.sim-footnote{font-size:10px;color:var(--ink-soft);text-align:center;margin-top:6px;font-style:italic}
+.sim-footnote{font-size:11px;color:var(--ink-soft);text-align:center;margin-top:6px;font-style:italic}
 
 /* ===== TOAST ===== */
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper-2);padding:12px 22px;border-radius:6px;font-size:14px;font-weight:500;font-family:'Inter',sans-serif;z-index:999;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;border-left:3px solid var(--gold)}
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper-2);padding:14px 26px;border-radius:8px;font-size:16px;font-weight:500;font-family:'Inter',sans-serif;z-index:999;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;border-left:3px solid var(--gold)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ===== FOOTNOTE ===== */
-.fn{font-size:11px;color:var(--ink-soft);text-align:center;margin-top:32px;padding:0 16px;line-height:1.5}
+.fn{font-size:12px;color:var(--ink-soft);text-align:center;margin-top:32px;padding:0 16px;line-height:1.5}
 
-/* ===== RESPONSIVE ===== */
-@media(min-width:640px){.hd{padding:32px 24px 0}.cards{grid-template-columns:repeat(4,1fr)}}
-@media(max-width:400px){.cards{grid-template-columns:1fr 1fr}}
+/* ===== CONFIG ACTION ===== */
+.cfg-act{display:flex;align-items:center;gap:12px;padding:14px;background:var(--paper);border-radius:6px;cursor:pointer;margin-bottom:10px;border:1px solid transparent}
+.cfg-act:hover{border-color:var(--line)}
+.cfg-act .ic{font-size:24px;flex-shrink:0}
+.cfg-act .t{flex:1}
+.cfg-act .t .tt{font-size:16px;font-weight:600}
+.cfg-act .t .st{font-size:13px;color:var(--ink-soft)}
 </style>
 </head>
 <body>
 <div class="hd">
   <div class="hd-top"><span class="ico">🏛️</span><h1>SR Alfredo</h1></div>
-  <p>Cuentas claras, amistades largas.</p>
-
-  <!-- Resumen -->
-  <div class="cards">
-    <div class="card"><div class="lbl">💰 Prestado activo</div><div class="val" id="kp-capital">$0</div></div>
-    <div class="card"><div class="lbl">📈 Por cobrar</div><div class="val gold" id="kp-porcobrar">$0</div></div>
-    <div class="card"><div class="lbl">🪙 Cobrado</div><div class="val" id="kp-cobrado">$0</div></div>
-    <div class="card"><div class="lbl">👥 Personas</div><div class="val" id="kp-personas">0</div></div>
-  </div>
 
   <!-- Avisos -->
   <div class="avisos" id="avisos-box" style="display:none">
@@ -185,13 +183,8 @@ tr:last-child td{border-bottom:none}
 
   <!-- Toolbar -->
   <div class="tb">
-    <div class="tb-wrap">
-      <span class="srch">🔍</span>
-      <input type="text" placeholder="Buscar por nombre o teléfono..." oninput="render()">
-    </div>
-    <button class="btn btn-s" onclick="openHistorial()">📜 Historial</button>
+    <button class="btn btn-p" onclick="openPersonaForm()" style="flex:1">+ Nueva persona</button>
     <button class="btn btn-s" onclick="openConfig()">⚙️</button>
-    <button class="btn btn-p" onclick="openPersonaForm()">+ Nueva persona</button>
   </div>
 
   <!-- Lista de personas -->
@@ -212,12 +205,23 @@ tr:last-child td{border-bottom:none}
       <div class="mo-h"><h3 id="mp-title">Nueva persona</h3><button class="btn-ico" onclick="closeModal('m-persona')">✕</button></div>
     </div>
     <div class="mo-c-scroll">
-      <div class="fg"><label>Nombre</label><input id="fp-nombre" placeholder="Ej. Carlos Pérez"><div class="hint" id="fp-nombre-h"></div></div>
-      <div class="fg"><label>Teléfono</label><input id="fp-tel" placeholder="Ej. 300 123 4567"></div>
-      <div class="fg"><label>Nota (opcional)</label><input id="fp-nota" placeholder="Ej. compañero de trabajo"></div>
+      <div class="fg"><label>Nombre</label><input id="fp-nombre" placeholder="Ej. Carlos Pérez" style="font-size:20px;padding:14px"><div class="hint" id="fp-nombre-h"></div></div>
+      <!-- NEW PERSON: loan fields (hidden when editing) -->
+      <div id="fp-loan-fields">
+        <div class="fg"><label>💰 Capital prestado ($)</label><input id="fp-monto" type="tel" class="mono" inputmode="numeric" placeholder="Ej. 500000" style="font-size:20px;padding:14px" oninput="autoPuntos(this)"></div>
+        <div class="fr">
+          <div class="fg"><label>Tasa (%)</label><input id="fp-tasa" type="number" step="0.5" value="5" class="mono" style="font-size:18px;padding:14px"></div>
+          <div class="fg"><label>Plazo en meses</label><input id="fp-plazo" type="number" min="0" placeholder="0 = indefinido" class="mono" style="font-size:18px;padding:14px"></div>
+        </div>
+      </div>
+      <!-- EDIT PERSON: extra fields (hidden when new) -->
+      <div id="fp-edit-fields" style="display:none">
+        <div class="fg"><label>Teléfono</label><input id="fp-tel" type="tel" inputmode="numeric" placeholder="Ej. 300 123 4567" style="font-size:18px;padding:14px"></div>
+        <div class="fg"><label>Nota (opcional)</label><input id="fp-nota" placeholder="Ej. compañero de trabajo" style="font-size:18px;padding:14px"></div>
+      </div>
     </div>
     <div style="padding:12px 20px 20px;flex-shrink:0">
-      <div class="mf"><button class="btn btn-s" onclick="closeModal('m-persona')">Cancelar</button><button class="btn btn-p" onclick="savePersona()">Guardar</button></div>
+      <div class="mf"><button class="btn btn-s" onclick="closeModal('m-persona')" style="font-size:16px;padding:14px 24px">Cancelar</button><button class="btn btn-p" onclick="savePersona()" style="font-size:16px;padding:14px 24px">Guardar</button></div>
     </div>
   </div>
 </div>
@@ -227,19 +231,17 @@ tr:last-child td{border-bottom:none}
   <div class="mo-c">
     <div class="mo-c-hd">
       <div class="mo-h">
-        <div><h3 id="det-nombre"></h3><div id="det-comport" style="margin-top:2px"></div></div>
+        <div><h3 id="det-nombre" style="font-size:24px"></h3><div id="det-comport" style="margin-top:4px"></div></div>
         <button class="btn-ico" onclick="closeModal('m-detalle')">✕</button>
       </div>
     </div>
     <div class="mo-c-scroll">
-      <div id="det-meta" class="mo-sec" style="display:none"></div>
       <div id="det-resumen" class="mo-sec" style="display:none"></div>
-      <div class="mo-sec2">
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn btn-s btn-sm" id="det-edit-btn">✏️ Editar</button>
-          <button class="btn btn-s btn-sm btn-d" id="det-del-btn">🗑 Eliminar</button>
-        </div>
-        <button class="btn btn-p btn-sm" id="det-add-loan" style="font-weight:700">+ Nuevo préstamo</button>
+      <div id="det-meta" class="mo-sec" style="display:none"></div>
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <button class="btn btn-p" id="det-add-loan" style="flex:1;font-size:18px;padding:16px">💰 + Abono</button>
+        <button class="btn btn-s" id="det-edit-btn" style="font-size:15px;padding:16px">✏️</button>
+        <button class="btn btn-s btn-d" id="det-del-btn" style="font-size:15px;padding:16px">🗑</button>
       </div>
       <div id="det-prestamos"></div>
       <div id="det-empty" class="empty"><p>Esta persona no tiene préstamos todavía.</p></div>
@@ -254,7 +256,7 @@ tr:last-child td{border-bottom:none}
       <div class="mo-h" style="margin-bottom:8px"><h3 id="mpr-title">Nuevo préstamo</h3><button class="btn-ico" onclick="closeModal('m-prestamo')">✕</button></div>
     </div>
     <div class="mo-c-scroll" style="padding:0 20px 4px">
-      <div class="fg"><label>Capital prestado ($)</label><input id="fpr-monto" class="mono" inputmode="numeric" placeholder="Ej. 500000" oninput="autoPuntos(this);actualizarSimulacion()"></div>
+      <div class="fg"><label>Capital prestado ($)</label><input id="fpr-monto" type="tel" class="mono" inputmode="numeric" placeholder="Ej. 500000" oninput="autoPuntos(this);actualizarSimulacion()"></div>
       <div class="fr">
         <div class="fg"><label>Tasa (%)</label><input id="fpr-tasa" type="number" step="0.5" value="5" class="mono" oninput="actualizarSimulacion()"></div>
         <div class="fg"><label>Periodo</label><select id="fpr-periodo" onchange="actualizarSimulacion()"><option value="mensual">Mensual</option><option value="anual">Anual</option></select></div>
@@ -290,7 +292,7 @@ tr:last-child td{border-bottom:none}
     <div class="mo-c-scroll">
       <div id="abono-info" class="mo-sec"></div>
       <div class="fg"><label>Fecha</label><input id="fab-fecha" type="date"></div>
-      <div class="fg"><label>Monto ($)</label><input id="fab-monto" class="mono" inputmode="numeric" placeholder="0" oninput="autoPuntos(this)"></div>
+      <div class="fg"><label>Monto ($)</label><input id="fab-monto" type="tel" class="mono" inputmode="numeric" placeholder="0" oninput="autoPuntos(this)"></div>
       <div id="abono-error" style="display:none;background:#F3E3E3;color:var(--red);padding:8px 10px;border-radius:4px;font-size:12px;margin-bottom:8px"></div>
     </div>
     <div style="padding:12px 20px 20px;flex-shrink:0">
@@ -314,16 +316,41 @@ tr:last-child td{border-bottom:none}
 
 <!-- MODAL: Configuración -->
 <div class="mo" id="m-config">
-  <div class="mo-c" style="max-width:400px">
+  <div class="mo-c" style="max-width:480px">
     <div class="mo-c-hd">
-      <div class="mo-h"><h3>⚙️ Configuración</h3><button class="btn-ico" onclick="closeModal('m-config')">✕</button></div>
+      <div class="mo-h"><h3>⚙️ Menú</h3><button class="btn-ico" onclick="closeModal('m-config')">✕</button></div>
     </div>
     <div class="mo-c-scroll">
-      <div style="padding:8px 0">
-        <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:8px">Zona de peligro</div>
-        <p style="font-size:12px;color:var(--ink-soft);margin-bottom:12px">Esto eliminará todas las personas, préstamos y abonos. No se puede deshacer.</p>
+
+      <!-- Resumen -->
+      <div class="rs">
+        <div class="rs-h">📊 Resumen general</div>
+        <div class="rs-g">
+          <div class="rs-i"><div class="l">💰 Prestado activo</div><div class="v" id="kp-capital">$0</div></div>
+          <div class="rs-i"><div class="l">📈 Por cobrar</div><div class="v gold" id="kp-porcobrar">$0</div></div>
+          <div class="rs-i"><div class="l">🪙 Cobrado</div><div class="v" id="kp-cobrado">$0</div></div>
+          <div class="rs-i"><div class="l">👥 Personas</div><div class="v" id="kp-personas">0</div></div>
+        </div>
+      </div>
+
+      <!-- Buscar -->
+      <div class="fg" style="margin-bottom:10px">
+        <label>🔍 Buscar persona</label>
+        <input type="text" id="cfg-search" style="font-size:18px;padding:14px" placeholder="Nombre o teléfono..." oninput="onConfigSearch()">
+      </div>
+
+      <!-- Acciones -->
+      <div class="cfg-act" onclick="closeModal('m-config');openHistorial()">
+        <span class="ic">📜</span>
+        <div class="t"><div class="tt">Historial de pagos</div><div class="st">Ver todos los abonos registrados</div></div>
+      </div>
+
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line)">
+        <div style="font-size:14px;font-weight:600;color:var(--red);margin-bottom:8px">Zona de peligro</div>
+        <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px">Esto eliminará todas las personas, préstamos y abonos. No se puede deshacer.</p>
         <button class="btn btn-d btn-s btn-sm" onclick="limpiarTodo()">🗑 Limpiar todos los datos</button>
       </div>
+
     </div>
   </div>
 </div>
@@ -367,6 +394,7 @@ let editPersonaId = null;
 let editPrestamoId = null;
 let detPersonaId = null;
 let abonoPrestamoId = null;
+let _searchQuery = '';
 
 // =============================================================================
 // UTILITIES — funciones auxiliares generales
@@ -596,7 +624,6 @@ function renderLoanCard(pr, calc) {
   const stLbl = stInfo.label;
   const stCls = stInfo.stampCls;
 
-  // Calcular cuota proyectada (solo informativa)
   let cuotaMensual = 0, totalPagar = 0, interesTotal = 0;
   if (pr.plazoMeses) {
     if (sistema === 'frances') {
@@ -611,15 +638,14 @@ function renderLoanCard(pr, calc) {
   }
 
   const fechaCabecera = calc.estado === 'pagado'
-    ? `<div style="font-size:10px;color:var(--ink-soft)">✅ Pagado ${formatFecha(calc.fechaPago)}</div>`
+    ? `<div style="font-size:12px;color:var(--ink-soft)">✅ Pagado ${formatFecha(calc.fechaPago)}</div>`
     : '<div></div>';
 
-  // Grid de información (con plazo vs sin plazo)
   const gridComun = () => `
     <div class="di"><div class="t">Capital</div><div class="v">${fmt(pr.monto)}</div></div>
     <div class="di"><div class="t">Tasa</div><div class="v">${pr.tasa}% ${pr.tasaPeriodo === 'anual' ? 'anual' : 'mensual'}</div></div>
     <div class="di"><div class="t">Saldo hoy</div><div class="v" style="color:var(--gold)">${fmt(calc.saldoTotal)}</div></div>
-    <div class="di"><div class="t">Sistema</div><div class="v" style="font-size:12px;color:var(--ink-soft)">${sistema === 'frances' ? 'Francés' : 'Libre'}</div></div>`;
+    <div class="di"><div class="t">Sistema</div><div class="v" style="color:var(--ink-soft)">${sistema === 'frances' ? 'Francés' : 'Libre'}</div></div>`;
 
   const gridConPlazo = () => `
     ${gridComun()}
@@ -627,39 +653,37 @@ function renderLoanCard(pr, calc) {
     <div class="di"><div class="t">Total a pagar</div><div class="v" style="color:var(--red)">${fmt(totalPagar)}</div></div>
     <div class="di"><div class="t">Intereses totales</div><div class="v" style="color:var(--ink-soft)">${fmt(interesTotal)}</div></div>`;
 
-  // Nota
   const notaHtml = pr.nota
-    ? `<p style="font-size:12px;color:var(--ink-soft);font-style:italic;margin-bottom:6px">"${esc(pr.nota)}"</p>`
+    ? `<p style="font-size:13px;color:var(--ink-soft);font-style:italic;margin-bottom:8px">💬 "${esc(pr.nota)}"</p>`
     : '';
 
-  // Lista de abonos (colapsable)
   const abonosCount = (pr.abonos || []).length;
   const abonosHtml = abonosCount ? `
-    <div style="margin-bottom:6px">
+    <div style="margin-bottom:8px">
       <div class="ab-h" onclick="toggleAbonos(this)">
         <span class="ab-arr">▶</span>
-        <span style="font-size:10px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.2px">Abonos (${abonosCount})</span>
+        <span style="font-size:12px;font-weight:600;color:var(--ink-soft)">Abonos (${abonosCount})</span>
       </div>
       <div class="hide">
         ${pr.abonos.slice().sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).map(a =>
-          `<div class="pr"><span class="dt">${formatFecha(a.fecha)}</span><span class="mo">${fmt(a.monto)}</span><button class="btn-ico" onclick="eliminarAbono('${pr.id}','${a.id}')" style="width:18px;height:18px;font-size:10px">✕</button></div>`
+          `<div class="pr"><span class="dt">${formatFecha(a.fecha)}</span><span class="mo">${fmt(a.monto)}</span><button class="btn-ico" onclick="eliminarAbono('${pr.id}','${a.id}')" style="width:24px;height:24px;font-size:12px">✕</button></div>`
         ).join('')}
       </div>
     </div>` : '';
 
-  return `<div style="background:var(--paper-2);border-radius:4px;padding:10px 12px;margin-bottom:10px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+  return `<div style="background:var(--paper-2);border-radius:6px;padding:14px 16px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       ${fechaCabecera}
-      <span class="stamp ${stCls}" style="transform:none;font-size:9px">${stLbl}</span>
+      <span class="stamp ${stCls}" style="transform:none">${stLbl}</span>
     </div>
-    <div class="dg" style="margin-bottom:6px">
+    <div class="dg" style="margin-bottom:8px">
       ${pr.plazoMeses ? gridConPlazo() : gridComun()}
     </div>
     ${notaHtml}
     ${abonosHtml}
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
-      <button class="btn btn-s btn-sm" onclick="closeModal('m-detalle');openPrestamoForm('${pr.personaId}','${pr.id}')">✏️</button>
-      <button class="btn btn-s btn-sm btn-d" onclick="eliminarPrestamo('${pr.id}')">🗑</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+      <button class="btn btn-s btn-sm" style="font-size:13px;padding:8px 14px" onclick="closeModal('m-detalle');openPrestamoForm('${pr.personaId}','${pr.id}')">✏️ Editar préstamo</button>
+      <button class="btn btn-s btn-sm btn-d" style="font-size:13px;padding:8px 14px" onclick="eliminarPrestamo('${pr.id}')">🗑 Eliminar</button>
     </div>
   </div>`;
 }
@@ -691,9 +715,12 @@ document.querySelectorAll('.mo').forEach(el => {
 // =============================================================================
 function openPersonaForm(id) {
   editPersonaId = id || null;
-  $('mp-title').textContent = editPersonaId ? 'Editar persona' : 'Nueva persona';
+  const isNew = !editPersonaId;
+  $('mp-title').textContent = isNew ? 'Nueva persona' : 'Editar persona';
   $('fp-nombre-h').textContent = '';
-  if (editPersonaId) {
+  $('fp-loan-fields').style.display = isNew ? 'block' : 'none';
+  $('fp-edit-fields').style.display = isNew ? 'none' : 'block';
+  if (!isNew) {
     const p = personas.find(x => x.id === id);
     if (!p) return;
     $('fp-nombre').value = p.nombre;
@@ -701,8 +728,9 @@ function openPersonaForm(id) {
     $('fp-nota').value = p.nota || '';
   } else {
     $('fp-nombre').value = '';
-    $('fp-tel').value = '';
-    $('fp-nota').value = '';
+    $('fp-monto').value = '';
+    $('fp-tasa').value = '5';
+    $('fp-plazo').value = '';
   }
   openModal('m-persona');
   setTimeout(() => $('fp-nombre').focus(), 150);
@@ -713,24 +741,34 @@ async function savePersona() {
     const nombre = $('fp-nombre').value.trim();
     if (!nombre) { $('fp-nombre-h').textContent = 'Requerido'; return; }
     $('fp-nombre-h').textContent = '';
-    const telefono = $('fp-tel').value.trim();
-    const nota = $('fp-nota').value.trim();
     if (editPersonaId) {
+      const telefono = $('fp-tel').value.trim();
+      const nota = $('fp-nota').value.trim();
       const idx = personas.findIndex(p => p.id === editPersonaId);
       if (idx === -1) return;
       personas[idx] = { ...personas[idx], nombre, telefono, nota };
       await syncToApi();
       toast('Persona actualizada');
-    } else {
-      const p = { id: uid(), nombre, telefono, nota };
-      personas.push(p);
-      await syncToApi();
       closeModal('m-persona');
       render();
-      openPrestamoForm(p.id);
       return;
     }
+    // Nueva persona + primer préstamo
+    const raw = ($('fp-monto').value || '').replace(/\./g, '');
+    const monto = num(raw);
+    if (!monto || monto < 1) { toast('Ingresa el capital prestado'); return; }
+    const tasa = num($('fp-tasa').value);
+    const plazo = int($('fp-plazo').value);
+    const p = { id: uid(), nombre, telefono: '', nota: '' };
+    personas.push(p);
+    const pr = {
+      id: uid(), personaId: p.id, fecha: today(), monto, tasa, periodo: 'mensual',
+      sistema: 'libre', plazoMeses: plazo > 0 ? plazo : 0, nota: '', abonos: []
+    };
+    prestamos.push(pr);
+    await syncToApi();
     closeModal('m-persona');
+    toast(`${nombre} agregada con préstamo de ${fmt(monto)}`);
     render();
   } catch(e) { toast('Error: ' + (e.message || e)); }
 }
@@ -845,7 +883,7 @@ function openAbonoForm(prestamoId) {
   if (sistema === 'frances' && pr.plazoMeses) {
     sugerido = Math.round(calcFrancesCuota(pr.monto, tasaM, pr.plazoMeses));
   } else {
-    sugerido = Math.round(calc.capitalPendiente * (calc.tasaM / 100));
+    sugerido = Math.round(Math.max(calc.interesAcumulado, calc.capitalPendiente * (calc.tasaM / 100)));
   }
 
   $('fab-fecha').value = today();
@@ -908,55 +946,74 @@ function openDetalle(personaId) {
   openModal('m-detalle');
 }
 
+function toggleDetExtra() {
+  const el = $('det-extra');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
 function renderDetalle() {
   const p = personas.find(x => x.id === detPersonaId);
   if (!p) return;
 
-  // Obtener préstamos con cálculos
   const prs = prestamos
     .filter(pr => pr.personaId === detPersonaId)
     .map(pr => ({ ...pr, calc: calcPrestamo(pr) }));
 
-  // Comportamiento
   const comp = calcComportamiento(prs);
   $('det-nombre').textContent = esc(p.nombre);
-  $('det-comport').innerHTML = comp ? `<span class="pill pill-${comp.cls}">${comp.label}</span>` : '';
+  $('det-comport').innerHTML = comp ? `<span class="pill pill-${comp.cls}" style="font-size:13px;padding:4px 14px">${comp.label}</span>` : '';
 
-  // Metadatos
-  const meta = [];
-  if (p.telefono) meta.push(`📞 ${esc(p.telefono)}`);
-  if (p.nota) meta.push(`💬 "${esc(p.nota)}"`);
-  if (meta.length) { $('det-meta').style.display = 'block'; $('det-meta').textContent = meta.join(' · '); }
-  else $('det-meta').style.display = 'none';
-
-  // Resumen del préstamo activo
   const activeLoan = prs.find(pr => pr.calc.estado !== 'pagado');
   const res = $('det-resumen');
-  if (activeLoan && activeLoan.plazoMeses) {
+  if (activeLoan) {
     const s = activeLoan.calc;
-    const numPagadas = (activeLoan.abonos || []).length;
-    const proxNum = numPagadas + 1;
-    const d = new Date(activeLoan.fecha + 'T00:00:00');
-    d.setMonth(d.getMonth() + numPagadas);
-    const proxFecha = d.toISOString().slice(0, 10);
     res.style.display = 'block';
-    res.innerHTML = `<div style="font-size:12px;line-height:1.6">
-      <div>📅 Prestado ${formatFecha(activeLoan.fecha)} — ${fmt(activeLoan.monto)} · plazo ${activeLoan.plazoMeses} ${pluralize(activeLoan.plazoMeses, 'mes')}${s.fechaVenc ? ' · termina ' + formatFecha(s.fechaVenc) : ''}</div>
-      ${proxNum <= activeLoan.plazoMeses ? `<div style="font-weight:600;margin-top:2px">📆 Próxima cuota: <span class="font-m">${formatFecha(proxFecha)}</span> · #${proxNum} de ${activeLoan.plazoMeses}</div>` : ''}
-    </div>`;
+    res.innerHTML = `<div style="font-size:16px;line-height:1.7">
+      <div style="display:flex;justify-content:space-between;gap:12px">
+        <span style="font-weight:600;color:var(--ink-soft)">Total debe</span>
+        <span class="font-m" style="font-weight:700;font-size:20px">${fmt(s.saldoTotal)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;gap:12px;margin-top:4px">
+        <span style="color:var(--ink-soft)">Capital pendiente</span>
+        <span class="font-m">${fmt(s.capitalPendiente)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;gap:12px">
+        <span style="color:var(--ink-soft)">Interés acumulado</span>
+        <span class="font-m">${fmt(s.interesAcumulado)}</span>
+      </div>`;
+    if (activeLoan.plazoMeses && s.estado !== 'pagado') {
+      const numPagadas = (activeLoan.abonos || []).length;
+      const proxNum = numPagadas + 1;
+      const d = new Date(activeLoan.fecha + 'T00:00:00');
+      d.setMonth(d.getMonth() + numPagadas);
+      const proxFecha = d.toISOString().slice(0, 10);
+      res.innerHTML += `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:14px;font-weight:600">📆 Próxima cuota: <span class="font-m">${formatFecha(proxFecha)}</span> · #${proxNum} de ${activeLoan.plazoMeses}</div>`;
+    }
+    res.innerHTML += `</div>`;
   } else {
     res.style.display = 'none';
   }
 
-  // Botones de la cabecera
+  // Metadatos (extra)
+  const meta = [];
+  if (p.telefono) meta.push(`📞 ${esc(p.telefono)}`);
+  if (p.nota) meta.push(`💬 "${esc(p.nota)}"`);
+  if (p.telefono || p.nota) {
+    $('det-meta').style.display = 'block';
+    $('det-meta').innerHTML = `<span class="ab-h" onclick="toggleDetExtra()">📋 Información extra <span class="ab-arr">▶</span></span>
+      <div id="det-extra" style="display:none;margin-top:8px">${meta.join('<br>')}</div>`;
+  } else {
+    $('det-meta').style.display = 'none';
+  }
+
+  // Botones
   $('det-edit-btn').onclick = () => { closeModal('m-detalle'); openPersonaForm(p.id); };
   $('det-del-btn').onclick = () => eliminarPersona(p.id);
-
   if (activeLoan) {
-    $('det-add-loan').textContent = '+ Registrar abono';
+    $('det-add-loan').textContent = '💰 Registrar abono';
     $('det-add-loan').onclick = () => { closeModal('m-detalle'); openAbonoForm(activeLoan.id); };
   } else {
-    $('det-add-loan').textContent = '+ Nuevo préstamo';
+    $('det-add-loan').textContent = '➕ Nuevo préstamo';
     $('det-add-loan').onclick = () => { closeModal('m-detalle'); openPrestamoForm(p.id); };
   }
 
@@ -1000,7 +1057,18 @@ function openHistorial() {
 }
 
 function openConfig() {
+  render();
   openModal('m-config');
+  setTimeout(() => {
+    const inp = $('cfg-search');
+    inp.value = _searchQuery;
+    inp.focus();
+  }, 200);
+}
+
+function onConfigSearch() {
+  _searchQuery = $('cfg-search').value.toLowerCase().trim();
+  render();
 }
 
 // =============================================================================
@@ -1048,7 +1116,7 @@ function actualizarSimulacion() {
 // RENDER — dibuja el dashboard y la lista de personas
 // =============================================================================
 function render() {
-  const search = document.querySelector('.tb input').value.toLowerCase().trim();
+  const search = _searchQuery;
 
   // --------------------------------------------------------------------------
   // 1. KPIs
@@ -1129,6 +1197,8 @@ function render() {
     );
   }
 
+  const filterBar = search ? `<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--paper);border-radius:6px;margin-bottom:10px;font-size:14px"><span>🔍 Filtro activo</span><span style="flex:1;color:var(--ink-soft);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">“${search}”</span><button class="btn btn-d btn-s btn-sm" onclick="_searchQuery='';document.getElementById('cfg-search')&&(document.getElementById('cfg-search').value='');render()" style="flex-shrink:0">✕</button></div>` : '';
+
   const cont = $('personas-list');
   const emp = $('personas-empty');
   if (!list.length && !personas.length) {
@@ -1137,20 +1207,21 @@ function render() {
     return;
   }
   if (!list.length && personas.length) {
-    cont.innerHTML = '<div class="empty"><p>No se encontró a nadie con ese nombre</p></div>';
+    cont.innerHTML = `<div class="empty"><p>No se encontró a nadie con ese nombre</p><button class="btn btn-s btn-sm" onclick="_searchQuery='';document.getElementById('cfg-search')&&(document.getElementById('cfg-search').value='');render()">✕ Limpiar filtro</button></div>`;
     emp.style.display = 'none';
     return;
   }
   emp.style.display = 'none';
-  cont.innerHTML = list.map(p => {
+  cont.innerHTML = filterBar + list.map(p => {
     const stInfo = estadoInfo(p.estado);
     const stCls = stInfo.stampCls;
     const stLbl = stInfo.label;
-    return `<div class="ll-item" onclick="openDetalle('${p.id}')">
+    const stClass = p.estado === 'sin' ? '' : `st-${p.estado}`;
+    return `<div class="ll-item ${stClass}" onclick="openDetalle('${p.id}')">
       <div class="ll-info">
         <div class="ll-name">${esc(p.nombre)}
-          ${stCls ? `<span class="stamp ${stCls}" style="transform:none;font-size:9px">${stLbl}</span>` : ''}
-          ${p.comp ? `<span class="pill pill-${p.comp.cls}">${p.comp.label}</span>` : ''}
+          ${stCls ? `<span class="stamp ${stCls}" style="transform:none">${stLbl}</span>` : ''}
+          ${p.comp ? `<span class="pill pill-${p.comp.cls}" style="font-size:12px;padding:4px 12px">${p.comp.label}</span>` : ''}
         </div>
         ${p.telefono ? `<div class="ll-meta">📞 ${esc(p.telefono)}</div>` : ''}
       </div>
