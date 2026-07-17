@@ -49,6 +49,10 @@ body{background:var(--paper);font-family:'Inter',sans-serif;color:var(--ink);-we
 /* ===== TOOLBAR ===== */
 .tb{display:flex;gap:10px;margin-bottom:16px}
 
+/* ===== FAB ===== */
+.fab{position:fixed;bottom:28px;right:20px;width:60px;height:60px;border-radius:50%;background:var(--ink);color:var(--card);font-size:30px;font-weight:300;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;z-index:100;transition:0.15s;-webkit-tap-highlight-color:transparent}
+.fab:active{transform:scale(0.92);opacity:0.85}
+
 /* ===== BUTTONS ===== */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:6px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:0.15s;white-space:nowrap;-webkit-tap-highlight-color:transparent;line-height:1.4}
 .btn:active{opacity:0.8}
@@ -183,8 +187,7 @@ tr:last-child td{border-bottom:none}
 
   <!-- Toolbar -->
   <div class="tb">
-    <button class="btn btn-p" onclick="openPersonaForm()" style="flex:1">+ Nueva persona</button>
-    <button class="btn btn-s" onclick="openConfig()">⚙️</button>
+    <button class="btn btn-s" onclick="openConfig()" style="font-size:20px;padding:10px 16px">⚙️</button>
   </div>
 
   <!-- Lista de personas -->
@@ -192,9 +195,9 @@ tr:last-child td{border-bottom:none}
   <div id="personas-empty" class="empty" style="display:none">
     <div class="ico">📖</div>
     <p>Agregá la primera persona para empezar a llevar las cuentas.</p>
-    <button class="btn btn-p" onclick="openPersonaForm()" style="margin:0 auto">+ Agregar persona</button>
   </div>
 </div>
+<button class="fab" onclick="openPersonaForm()">+</button>
 
 <p class="fn">El interés se calcula mes a mes sobre el capital pendiente. Cada abono paga primero el interés acumulado y el resto abona a capital.</p>
 
