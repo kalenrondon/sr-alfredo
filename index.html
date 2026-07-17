@@ -291,12 +291,11 @@ tr:last-child td{border-bottom:none}
     </div>
     <div class="mo-c-scroll">
       <div id="abono-info" class="mo-sec"></div>
-      <div class="fg"><label>Fecha</label><input id="fab-fecha" type="date"></div>
-      <div class="fg"><label>Monto ($)</label><input id="fab-monto" type="tel" class="mono" inputmode="numeric" placeholder="0" oninput="autoPuntos(this)"></div>
-      <div id="abono-error" style="display:none;background:#F3E3E3;color:var(--red);padding:8px 10px;border-radius:4px;font-size:12px;margin-bottom:8px"></div>
+      <div class="fg"><label>💰 Monto a pagar ($)</label><input id="fab-monto" type="tel" class="mono" inputmode="numeric" placeholder="0" style="font-size:24px;padding:16px;text-align:center;font-weight:700" oninput="autoPuntos(this)"></div>
+      <div id="abono-error" style="display:none;background:#F3E3E3;color:var(--red);padding:8px 10px;border-radius:4px;font-size:13px;margin-bottom:8px"></div>
     </div>
     <div style="padding:12px 20px 20px;flex-shrink:0">
-      <div class="mf"><button class="btn btn-s" onclick="closeModal('m-abono')">Cancelar</button><button class="btn btn-p" onclick="saveAbono()">Guardar abono</button></div>
+      <div class="mf"><button class="btn btn-s" onclick="closeModal('m-abono')" style="font-size:16px;padding:14px 24px">Cancelar</button><button class="btn btn-p" onclick="saveAbono()" style="font-size:16px;padding:14px 24px;flex:1">✔️ Guardar abono</button></div>
     </div>
   </div>
 </div>
@@ -869,7 +868,14 @@ function openAbonoForm(prestamoId) {
   if (!pr) return;
   const calc = calcPrestamo(pr);
   const per = personas.find(p => p.id === pr.personaId);
-  $('abono-info').innerHTML = `<b>${esc(per ? per.nombre : '—')}</b> — Debe: ${fmt(calc.saldoTotal)} (capital: ${fmt(calc.capitalPendiente)} + interés: ${fmt(calc.interesAcumulado)})`;
+  const interesPorMes = calc.capitalPendiente * (calc.tasaM / 100);
+  $('abono-info').innerHTML = `<div style="text-align:center">
+    <div style="font-size:16px;font-weight:600">${esc(per ? per.nombre : '—')}</div>
+    <div style="margin-top:6px;display:flex;justify-content:center;gap:20px;font-size:14px">
+      <span>Debe <b style="font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--gold)">${fmt(calc.saldoTotal)}</b></span>
+      <span>Interés <b style="font-family:'IBM Plex Mono',monospace;font-size:18px">${fmt(interesPorMes)}</b>/mes</span>
+    </div>
+  </div>`;
 
   const tasaM = getTasaMensual(pr);
   const sistema = pr.sistema || 'frances';
@@ -880,7 +886,6 @@ function openAbonoForm(prestamoId) {
     sugerido = Math.round(Math.max(calc.interesAcumulado, calc.capitalPendiente * (calc.tasaM / 100)));
   }
 
-  $('fab-fecha').value = today();
   $('fab-monto').value = sugerido > 0 ? sugerido.toString() : '';
   if ($('fab-monto').value) autoPuntos($('fab-monto'));
   $('abono-error').style.display = 'none';
@@ -892,8 +897,8 @@ async function saveAbono() {
   try {
     const raw = $('fab-monto').value.replace(/\./g, '');
     const monto = num(raw);
-    const fecha = $('fab-fecha').value;
-    if (!monto || monto <= 0 || !fecha) { toast('Completa los campos'); return; }
+    const fecha = today();
+    if (!monto || monto <= 0) { toast('Ingresa el monto a pagar'); return; }
 
     const pr = prestamos.find(x => x.id === abonoPrestamoId);
     if (!pr) return;
@@ -1240,7 +1245,6 @@ function render() {
     toast('Error al cargar datos');
   }
   $('fpr-fecha').value = today();
-  $('fab-fecha').value = today();
   render();
 })();
 </script>
