@@ -524,10 +524,10 @@ function calcPrestamo(pr) {
 
   for (const ab of abonos) {
     const d = new Date(ab.fecha + 'T00:00:00');
-    // Calcular meses transcurridos según el sistema
+    // Calcular meses transcurridos
     const meses = sistema === 'frances'
       ? getCalendarMonths(lastDate, d)
-      : Math.max(0, (d - lastDate) / MS_MES);
+      : Math.max(1, Math.round((d - lastDate) / MS_MES));
 
     // Acumular interés sobre el saldo pendiente del período
     interes += balance * (tasaM / 100) * meses;
@@ -551,11 +551,9 @@ function calcPrestamo(pr) {
     }
   }
 
-  // Interés acumulado desde el último abono hasta hoy
+  // Interés acumulado desde el último abono hasta hoy (en meses calendario)
   const hoy = new Date();
-  const mesesHoy = sistema === 'frances'
-    ? getCalendarMonths(lastDate, hoy)
-    : Math.max(0, (hoy - lastDate) / MS_MES);
+  const mesesHoy = getCalendarMonths(lastDate, hoy);
 
   interes += balance * (tasaM / 100) * mesesHoy;
   const saldoTotal = balance + interes;
