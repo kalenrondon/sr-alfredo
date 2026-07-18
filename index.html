@@ -633,7 +633,8 @@ function renderLoanCard(pr, calc) {
 
   const gridComun = () => `
     <div class="di"><div class="t">Saldo hoy</div><div class="v" style="color:var(--gold);font-size:18px">${fmt(calc.saldoTotal)}</div></div>
-    <div class="di"><div class="t">Interés por mes</div><div class="v">${fmt(interesPorMes)}</div></div>`;
+    <div class="di"><div class="t">Interés por mes</div><div class="v">${fmt(interesPorMes)}</div></div>
+    <div class="di"><div class="t">Interés total</div><div class="v" style="${calc.interesAcumulado > 100 ? 'color:var(--red)' : ''}">${fmt(calc.interesAcumulado)}</div></div>`;
 
   const gridConPlazo = () => `
     ${gridComun()}
