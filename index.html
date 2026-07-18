@@ -376,6 +376,7 @@ let editPrestamoId = null;
 let detPersonaId = null;
 let abonoPrestamoId = null;
 let _searchQuery = '';
+let _showPaid = false;
 
 // =============================================================================
 // UTILITIES — funciones auxiliares generales
@@ -1224,20 +1225,33 @@ function render() {
 
   const filterBar = search ? `<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--paper);border-radius:6px;margin-bottom:10px;font-size:14px"><span>🔍 Filtro activo</span><span style="flex:1;color:var(--ink-soft);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">“${search}”</span><button class="btn btn-d btn-s btn-sm" onclick="_searchQuery='';document.getElementById('cfg-search')&&(document.getElementById('cfg-search').value='');render()" style="flex-shrink:0">✕</button></div>` : '';
 
+  // Separar activos y pagados
+  const activos = list.filter(p => p.estado !== 'pagado');
+  const pagados = list.filter(p => p.estado === 'pagado');
+  const mostrar = _showPaid ? pagados : activos;
+
+  const tabs = (activos.length || pagados.length) ? `<div style="display:flex;gap:8px;margin-bottom:12px">
+    <button class="btn btn-s btn-sm" style="flex:1;${!_showPaid ? 'background:var(--ink);color:var(--card);border-color:var(--ink)' : ''}" onclick="_showPaid=false;render()">Activos ${activos.length ? '('+activos.length+')' : ''}</button>
+    <button class="btn btn-s btn-sm" style="flex:1;${_showPaid ? 'background:var(--ink);color:var(--card);border-color:var(--ink)' : ''}" onclick="_showPaid=true;render()">Pagados ${pagados.length ? '('+pagados.length+')' : ''}</button>
+  </div>` : '';
+
   const cont = $('personas-list');
   const emp = $('personas-empty');
-  if (!list.length && !personas.length) {
+  if (!personas.length) {
     cont.innerHTML = '';
     emp.style.display = 'block';
     return;
   }
-  if (!list.length && personas.length) {
-    cont.innerHTML = `<div class="empty"><p>No se encontró a nadie con ese nombre</p><button class="btn btn-s btn-sm" onclick="_searchQuery='';document.getElementById('cfg-search')&&(document.getElementById('cfg-search').value='');render()">✕ Limpiar filtro</button></div>`;
+  if (!mostrar.length) {
+    const msg = _showPaid ? 'No hay personas pagadas' : (search ? 'No se encontró a nadie con ese nombre' : 'No hay préstamos activos');
+    const limpia = _showPaid ? `_showPaid=false;render()` : `_searchQuery='';document.getElementById('cfg-search')&&(document.getElementById('cfg-search').value='');render()`;
+    const btnTxt = _showPaid ? 'Ver activos' : 'Limpiar filtro';
+    cont.innerHTML = (tabs || '') + `<div class="empty"><p>${msg}</p><button class="btn btn-s btn-sm" onclick="${limpia}">✕ ${btnTxt}</button></div>`;
     emp.style.display = 'none';
     return;
   }
   emp.style.display = 'none';
-  cont.innerHTML = filterBar + list.map(p => {
+  cont.innerHTML = filterBar + tabs + mostrar.map(p => {
     const stInfo = estadoInfo(p.estado);
     const stCls = stInfo.stampCls;
     const stLbl = stInfo.label;
