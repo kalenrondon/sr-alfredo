@@ -862,9 +862,6 @@ function openAbonoForm(prestamoId) {
   const calc = calcPrestamo(pr);
   const per = personas.find(p => p.id === pr.personaId);
   const interesPorMes = calc.capitalPendiente * (calc.tasaM / 100);
-  const intAcumHtml = calc.interesAcumulado > 100
-    ? `<div style="margin-top:4px;font-size:13px">Interés acumulado: <b style="font-family:'IBM Plex Mono',monospace;color:var(--red)">${fmt(calc.interesAcumulado)}</b></div>`
-    : '';
   const abonos = pr.abonos || [];
   const ultimosAbonos = abonos.slice().sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).slice(0, 5);
   const abonosHtml = ultimosAbonos.length
@@ -884,7 +881,7 @@ function openAbonoForm(prestamoId) {
       <span>Debe <b style="font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--gold)">${fmt(calc.saldoTotal)}</b></span>
       <span>Interés <b style="font-family:'IBM Plex Mono',monospace;font-size:18px">${fmt(interesPorMes)}</b>/mes</span>
     </div>
-    ${intAcumHtml}
+    <div style="font-size:12px;color:var(--ink-soft);margin-top:4px">Interés total: <b style="font-family:'IBM Plex Mono',monospace;color:${calc.interesAcumulado > 100 ? 'var(--red)' : 'var(--ink)'}">${fmt(calc.interesAcumulado)}</b></div>
     ${abonosHtml}
   </div>`;
 
